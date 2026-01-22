@@ -1,0 +1,1186 @@
+<git DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b5352c",
+                        "success": "#22c55e",
+                        "background-light": "#fdfdfc",
+                        "background-dark": "#1a1a1a",
+                        "accent-green": "#6B705C",
+                        "matcha": "#6B705C",
+                        "sakura-cream": "#fdfdf8",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#262626",
+                        "card-bg": "#f4f1f1",
+                        "status-new": "#4A90E2",
+                        "status-preparing": "#F5A623",
+                        "status-dispatched": "#4CAF50",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+  import { getDatabase, ref, set, get, onValue, off, remove } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCAu96Nk2vciukH5L2PNP8IsaNz8cuxnlU",
+    authDomain: "speedrolls.firebaseapp.com",
+    databaseURL: "https://speedrolls-default-rtdb.firebaseio.com",
+    projectId: "speedrolls",
+    storageBucket: "speedrolls.firebasestorage.app",
+    messagingSenderId: "721891301536",
+    appId: "1:721891301536:web:c4e8146405ea12b13751c5",
+    measurementId: "G-EFGM3FYB0F"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+
+  // Hacer disponible globalmente
+  window.firebaseDB = database;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebaseGet = get;
+  window.firebaseOnValue = onValue;
+  window.firebaseOff = off;
+  window.firebaseRemove = remove;
+  window.firebaseReady = true;
+</script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#171212] dark:text-white antialiased">
+<!-- Router Container -->
+<div id="app"></div>
+
+<!-- Pantalla 1: Home -->
+<div id="page-home" class="page active">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden max-w-[430px] lg:max-w-[900px] mobile-container shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- TopAppBar -->
+<nav class="sticky top-0 z-50 flex items-center bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md p-4 justify-between border-b border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-2">
+<div class="bg-primary p-1.5 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<h1 class="text-[#171212] dark:text-white text-xl font-extrabold leading-tight tracking-tight">Speed Roll</h1>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#171212] dark:text-white">search</span>
+</button>
+<button onclick="router.navigate('orders')" class="relative flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#171212] dark:text-white">shopping_bag</span>
+<span id="cartBadgeHome" class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white hidden"></span>
+</button>
+</div>
+</nav>
+<!-- Carousel / Hero Section -->
+<div class="mt-4">
+<div class="flex overflow-x-auto snap-x snap-mandatory hero-carousel">
+<div class="flex items-stretch px-4 gap-4 w-full lg:w-auto">
+<!-- Slide 1 -->
+<div class="snap-center flex h-full flex-col gap-4 rounded-xl min-w-[320px] hero-slide relative group">
+<div onclick="router.navigate('menu'); setTimeout(() => filterByCategory('promociones'), 100);" class="w-full aspect-[16/9] bg-center bg-no-repeat bg-cover rounded-xl flex flex-col justify-end p-5 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 cursor-pointer hover:scale-[1.02] transition-transform" data-alt="Promociones especiales" id="promoHeroSlide" style='background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.7)), url("https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&q=80");'>
+<div class="bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded w-fit mb-2">Promoción</div>
+<h3 class="text-white text-2xl font-bold leading-tight">Speed 1: 20% Descuento</h3>
+<p class="text-gray-200 text-sm font-normal">Exclusivo primera orden en app</p>
+</div>
+</div>
+<!-- Slide 2 -->
+<div class="snap-center flex h-full flex-col gap-4 rounded-xl min-w-[320px] hero-slide relative group">
+<div onclick="router.navigate('menu'); setTimeout(() => filterByCategory('Gohan'), 100);" class="w-full aspect-[16/9] bg-center bg-no-repeat bg-cover rounded-xl flex flex-col justify-end p-5 overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 cursor-pointer hover:scale-[1.02] transition-transform" data-alt="La Serie Gohan" style='background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.7)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCCq6Wl5L6ih_SYenl7cnJq4DBo8k8bhY7fRouHzFye_ey8i1QhlvHShgufsCn6ljTmUPGbXi_eU_4ElA3i-jYPzzO7-FTCLDDFP0YslWK5Yj6z7JXWMpjyPFJNTqNwkdU-ItaAjY8h9JsEdHq9LBpH-dhKtra5NbYes3Sj3RhAl636wpSvZeTm3VTHnuxZ6lOSfL5OGNmCJ7eM2_a83amhRbhf6hTbiqKQKrw2hkJI7UO9nC9JQmoKqBvXgEpAYyUAGjCwH8nVjuwO");'>
+<div class="bg-accent-green text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded w-fit mb-2">Nuevo</div>
+<h3 class="text-white text-2xl font-bold leading-tight">La Serie Gohan</h3>
+<p class="text-gray-200 text-sm font-normal">Platos frescos para el alma</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- SectionHeader: Categories -->
+<div class="flex items-center justify-between px-4 pt-8 pb-3">
+<h3 class="text-[#171212] dark:text-white text-lg font-bold leading-tight tracking-tight">Categorías del Menú</h3>
+<button onclick="router.navigate('menu')" class="text-primary text-sm font-semibold">Ver Todo</button>
+</div>
+<!-- TextGrid: Categories with Icons -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 px-4" id="homeCategoriesContainer">
+<!-- Las categorías se generarán dinámicamente desde Firebase -->
+</div>
+<!-- Featured Section: Bento Style -->
+<div class="px-4 py-8">
+<h3 class="text-[#171212] dark:text-white text-lg font-bold leading-tight tracking-tight mb-4">Elección del Chef</h3>
+<div class="grid grid-cols-2 lg:grid-cols-4 grid-rows-2 lg:grid-rows-1 gap-3 h-[400px] lg:h-[300px]" id="chefChoiceContainer">
+<!-- Los productos destacados se generarán dinámicamente desde Firebase -->
+</div>
+</div>
+<!-- Sticky Bottom Area -->
+<div class="sticky bottom-0 mt-auto bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent pt-10 pb-4 px-4">
+<!-- SingleButton: Order Now -->
+<div class="flex mb-4 lg:justify-center">
+<button onclick="router.navigate('menu')" class="flex min-w-[84px] max-w-[480px] lg:max-w-[400px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-8 flex-1 lg:flex-none bg-primary text-white text-base font-bold leading-normal tracking-wide shadow-[0_8px_30px_rgb(181,53,44,0.3)] hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined mr-2">restaurant_menu</span>
+<span class="truncate uppercase tracking-wider">Comenzar Pedido</span>
+</button>
+</div>
+<!-- Custom Tab Bar -->
+<div class="flex items-center justify-around bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border border-gray-100 dark:border-gray-800 rounded-2xl h-16 shadow-lg">
+<button onclick="router.navigate('home')" class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined font-variation-fill-1">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button onclick="router.navigate('menu')" class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-medium">Menú</span>
+</button>
+<button onclick="router.navigate('track')" class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-[10px] font-medium">Pedidos</span>
+</button>
+<button onclick="router.navigate('orders')" class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="text-[10px] font-medium">Carrito</span>
+</button>
+</div>
+</div>
+<div class="h-6 bg-transparent"></div>
+</div>
+</div>
+
+<!-- Pantalla 2: Menu -->
+<div id="page-menu" class="page">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-[430px] lg:max-w-[900px] mobile-container shadow-2xl border-x border-gray-100 dark:border-zinc-800 bg-background-light dark:bg-background-dark">
+<!-- TopAppBar -->
+<header class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between z-10 sticky top-0">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<div class="flex-1 text-center">
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase italic">Speed Roll</h2>
+</div>
+<div class="flex w-12 items-center justify-end">
+<button onclick="router.navigate('orders')" class="relative flex size-10 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 text-primary">
+<span class="material-symbols-outlined">shopping_basket</span>
+<span id="cartBadgeMenu" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold hidden"></span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto no-scrollbar">
+<!-- Hero Banner (Subtle Brand Touch) -->
+<div class="px-4 py-2">
+<div class="relative h-24 w-full rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center px-6 overflow-hidden border border-primary/10">
+<div class="z-10">
+<h1 class="text-lg font-bold">Menú Fusión</h1>
+<p class="text-xs text-primary font-medium">Sushi encuentra Burger</p>
+</div>
+<div class="absolute right-[-20px] top-[-10px] opacity-10">
+<span class="material-symbols-outlined text-[120px] rotate-12">restaurant</span>
+</div>
+</div>
+</div>
+<!-- Chips / Filter Carousel -->
+<div class="flex gap-3 px-4 py-4 overflow-x-auto no-scrollbar sticky top-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm z-10" id="categoryFiltersContainer">
+<!-- Los filtros de categorías se generarán dinámicamente desde Firebase -->
+</div>
+<!-- ImageGrid / Menu Items -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4 products-grid" id="menuProductsContainer">
+<!-- Los productos se cargarán dinámicamente desde Firebase -->
+</div>
+<div class="h-24"></div>
+</main>
+<!-- BottomNavBar -->
+<nav class="absolute bottom-0 left-0 right-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 px-4 pb-6 pt-2 flex items-center justify-around z-20">
+<button onclick="router.navigate('home')" class="flex flex-1 flex-col items-center justify-center gap-1 text-zinc-400 dark:text-zinc-500">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Inicio</p>
+</button>
+<button onclick="router.navigate('menu')" class="flex flex-1 flex-col items-center justify-center gap-1 text-primary">
+<span class="material-symbols-outlined font-fill">restaurant_menu</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Menú</p>
+</button>
+<button onclick="router.navigate('orders')" class="flex flex-1 flex-col items-center justify-center gap-1 text-zinc-400 dark:text-zinc-500">
+<span class="material-symbols-outlined">shopping_bag</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Carrito</p>
+</button>
+</nav>
+</div>
+</div>
+<!-- Pantalla 4: Cart/Orders -->
+<div id="page-orders" class="page">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] lg:max-w-[900px] mobile-container mx-auto overflow-x-hidden border-x border-gray-100 dark:border-zinc-800 shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between">
+<button onclick="router.navigate('menu')" class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 text-primary cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h2 class="text-[#171212] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Tu Carrito</h2>
+</header>
+<main class="flex-1 px-4 pt-4 pb-52 lg:pb-40">
+<!-- Promo Banner -->
+<div class="mb-6 p-4 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+<p class="text-sm font-medium text-primary">💡 Consumo Inteligente: Planifica tu pedido y aprovecha mejor tu compra</p>
+</div>
+<!-- Cart Items List -->
+<div class="flex flex-col gap-4">
+<!-- El carrito comienza vacío -->
+<!-- Suggestion Card -->
+<div class="mt-4 p-4 rounded-xl border-2 border-dashed border-red-300 dark:border-red-700 bg-red-500 dark:bg-red-600 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-red-400 dark:bg-red-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">add_shopping_cart</span>
+</div>
+<p class="text-sm font-medium text-white">¿Quieres agregar algo más?</p>
+</div>
+<button onclick="router.navigate('menu')" class="text-white text-sm font-bold hover:text-red-100">Ver Menú</button>
+</div>
+<!-- Salsas Adicionales Section -->
+<div class="mt-4 p-3 rounded-lg bg-white dark:bg-zinc-900 shadow-sm border border-gray-50 dark:border-zinc-800">
+<h3 class="text-[#171212] dark:text-white text-sm font-semibold mb-3 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-base">water_drop</span>
+Salsas Adicionales
+</h3>
+<div id="extraSaucesContainer" class="space-y-2">
+<!-- Las salsas se cargarán dinámicamente desde Firebase -->
+</div>
+</div>
+<!-- Observaciones del Cliente Section -->
+<div class="mt-6 mb-6 p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-50 dark:border-zinc-800">
+<h3 class="text-[#171212] dark:text-white text-base font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">note</span>
+Observaciones del Cliente
+</h3>
+<div class="flex flex-col w-full">
+<p class="text-[#171212] dark:text-gray-300 text-sm font-medium leading-normal pb-1.5 px-1 mb-2">Agrega instrucciones especiales o comentarios sobre tu pedido</p>
+<textarea id="customerObservations" rows="3" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-24 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-[15px] pt-[15px] pb-[20px] text-base font-normal resize-none" placeholder="Ej: Sin cebolla, sin picante, entrega urgente, etc."></textarea>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Order Summary & Checkout -->
+<footer class="fixed lg:sticky bottom-0 left-0 right-0 max-w-[430px] lg:max-w-[900px] mx-auto bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl p-6 lg:p-4 lg:pt-6 custom-shadow rounded-t-[2rem] lg:rounded-2xl border-t border-gray-100 dark:border-zinc-800 fixed-bottom-desktop">
+<!-- DescriptionList: Summary -->
+<div class="space-y-3 mb-6 lg:mb-6">
+<div class="flex justify-between items-center">
+<p class="text-[#836967] dark:text-zinc-400 text-sm lg:text-base font-medium leading-normal">Subtotal</p>
+<p class="text-[#171212] dark:text-white text-sm lg:text-base font-bold leading-normal text-right">$0</p>
+</div>
+<div class="h-px bg-gray-100 dark:bg-zinc-800 w-full my-1 lg:my-2"></div>
+<!-- DescriptionList: Total -->
+<div class="flex justify-between items-center lg:py-3 lg:px-3 lg:bg-white lg:dark:bg-zinc-900 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-50 lg:dark:border-zinc-800">
+<p class="text-[#171212] dark:text-white text-lg lg:text-xl font-bold leading-normal">Total</p>
+<p class="text-primary text-2xl lg:text-3xl font-bold leading-normal text-right">$0</p>
+</div>
+</div>
+<div>
+<button onclick="router.navigate('checkout')" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 lg:py-5 px-6 rounded-xl lg:rounded-2xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-3 transition-all active:scale-[0.98] lg:text-lg lg:font-extrabold">
+<span>Confirmar Pedido</span>
+<span class="material-symbols-outlined lg:text-xl">arrow_forward</span>
+</button>
+</div>
+<!-- Home Indicator (iOS style) - oculto en desktop -->
+<div class="w-32 h-1 bg-gray-200 dark:bg-zinc-800 mx-auto mt-6 lg:hidden rounded-full"></div>
+</footer>
+</div>
+</div>
+<!-- Pantalla 5: Checkout/Profile -->
+<div id="page-checkout" class="page">
+<div class="bg-background-light dark:bg-background-dark text-[#171212] dark:text-white min-h-screen">
+<div class="max-w-[480px] lg:max-w-[900px] mobile-container mx-auto min-h-screen flex flex-col relative pb-32 lg:pb-8 shadow-2xl">
+<!-- TopAppBar -->
+<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="flex items-center p-3 lg:p-4 justify-between">
+<button onclick="router.navigate('orders')" class="text-[#171212] dark:text-white flex size-10 lg:size-12 shrink-0 items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-lg lg:text-xl">arrow_back_ios_new</span>
+</button>
+<h2 class="text-[#171212] dark:text-white text-base lg:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10 lg:pr-12">Pago</h2>
+</div>
+<!-- PageIndicators (Progress) -->
+<div class="flex w-full flex-row items-center justify-center gap-2 lg:gap-3 py-1.5 lg:py-2">
+<div class="h-1 lg:h-1.5 w-6 lg:w-8 rounded-full bg-primary"></div>
+<div class="h-1 lg:h-1.5 w-6 lg:w-8 rounded-full bg-primary/20 dark:bg-primary/10"></div>
+<div class="h-1 lg:h-1.5 w-6 lg:w-8 rounded-full bg-primary/20 dark:bg-primary/10"></div>
+</div>
+</div>
+<!-- Main Form Container -->
+<div class="px-3 lg:px-8 space-y-3 lg:space-y-6 form-section">
+<!-- Contact Information Section -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-lg lg:rounded-xl p-3 lg:p-4 shadow-sm border border-gray-100 dark:border-white/5 flex-shrink-0">
+<div class="flex items-center gap-1.5 lg:gap-2 mb-2 lg:mb-4">
+<span class="material-symbols-outlined text-primary text-lg lg:text-xl">person</span>
+<h3 class="text-[#171212] dark:text-white text-base lg:text-lg font-bold leading-tight tracking-[-0.015em]">Información de Contacto</h3>
+</div>
+<div class="space-y-3 lg:space-y-4">
+<!-- TextField: Full Name -->
+<div class="flex flex-col w-full">
+<p class="text-[#171212] dark:text-gray-300 text-xs lg:text-sm font-medium leading-normal pb-1 px-1 lg:pb-1.5">Nombre Completo</p>
+<input id="fullName" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-11 lg:h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-3 py-2 lg:p-[15px] text-sm lg:text-base font-normal" placeholder="Juan Pérez" value="" required minlength="3" maxlength="100"/>
+</div>
+<!-- Teléfono (obligatorio) -->
+<div class="flex flex-col w-full">
+<p class="text-[#171212] dark:text-gray-300 text-xs lg:text-sm font-medium leading-normal pb-1 px-1 lg:pb-1.5">Teléfono <span class="text-red-500">*</span></p>
+<input id="customerPhone" type="tel" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-11 lg:h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-3 py-2 lg:p-[15px] text-sm lg:text-base font-normal" placeholder="+56912345678" value="" required pattern="^\+569[0-9]{8}$" title="Formato: +56912345678"/>
+</div>
+<!-- Honeypot fields (ocultos para bots) -->
+<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" style="position: absolute; left: -9999px;" aria-hidden="true"/>
+<input type="email" id="email" name="email" tabindex="-1" autocomplete="off" style="position: absolute; left: -9999px; display: none;" aria-hidden="true"/>
+</div>
+</div>
+</section>
+<!-- Medio de Pago Section -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-lg lg:rounded-xl p-3 lg:p-4 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="flex items-center gap-1.5 lg:gap-2 mb-2 lg:mb-4">
+<span class="material-symbols-outlined text-primary text-lg lg:text-xl">payments</span>
+<h3 class="text-[#171212] dark:text-white text-base lg:text-lg font-bold leading-tight tracking-[-0.015em]">Medio de Pago</h3>
+</div>
+<div class="flex flex-col w-full">
+<p class="text-[#171212] dark:text-gray-300 text-xs lg:text-sm font-medium leading-normal pb-1 px-1 lg:pb-1.5 mb-1.5 lg:mb-2">Selecciona el medio de pago</p>
+<select id="paymentMethod" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-11 lg:h-14 px-3 lg:px-[15px] text-sm lg:text-base font-normal appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 12 12%27%3E%3Cpath fill=%27%23333%27 d=%27M6 9L1 4h10L6 9z%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 10px; padding-right: 2rem;">
+<option value="efectivo">Efectivo</option>
+<option value="tarjeta">Tarjeta</option>
+<option value="transferencia">Transferencia</option>
+</select>
+</div>
+</section>
+<!-- Retiro o Despacho Section -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-lg lg:rounded-xl p-3 lg:p-4 shadow-sm border border-gray-100 dark:border-white/5">
+<div class="flex items-center gap-1.5 lg:gap-2 mb-2 lg:mb-4">
+<span class="material-symbols-outlined text-primary text-lg lg:text-xl">local_shipping</span>
+<h3 class="text-[#171212] dark:text-white text-base lg:text-lg font-bold leading-tight tracking-[-0.015em]">Retiro o Despacho</h3>
+</div>
+<!-- Custom Segmented Control -->
+<div class="flex p-0.5 lg:p-1 bg-gray-100 dark:bg-background-dark rounded-md lg:rounded-lg mb-2 lg:mb-4">
+<button onclick="toggleDeliveryOption('retiro')" id="btnRetiro" class="flex-1 py-1.5 lg:py-2 px-2 lg:px-3 bg-white dark:bg-surface-dark rounded-md shadow-sm text-xs lg:text-sm font-bold text-primary">Retiro en Local</button>
+<button onclick="toggleDeliveryOption('despacho')" id="btnDespacho" class="flex-1 py-1.5 lg:py-2 px-2 lg:px-3 rounded-md text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400">Despacho</button>
+</div>
+<!-- Address Field (only shown when despacho is selected) -->
+<div id="deliveryAddressSection" class="hidden">
+<div class="flex flex-col w-full mb-3 lg:mb-6">
+<p class="text-[#171212] dark:text-gray-300 text-xs lg:text-sm font-medium leading-normal pb-1 px-1 lg:pb-1.5">Dirección de Despacho</p>
+<textarea id="deliveryAddress" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-16 lg:h-20 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-3 pt-2 pb-3 lg:px-[15px] lg:pt-[15px] lg:pb-[20px] text-sm lg:text-base font-normal resize-none" placeholder="Ingresa tu dirección completa..." rows="3"></textarea>
+</div>
+<div class="flex items-center justify-between p-2 lg:p-3 bg-primary/5 dark:bg-primary/10 rounded-md lg:rounded-lg border border-primary/20">
+<span class="text-xs lg:text-sm font-medium text-[#171212] dark:text-white">Costo de Despacho</span>
+<span class="text-base lg:text-lg font-bold text-primary">$3.000</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom CTA Bar -->
+<div class="fixed lg:sticky bottom-0 left-0 right-0 max-w-[480px] lg:max-w-[900px] mx-auto bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-white/5 p-4 pb-8 lg:pb-4 z-50 fixed-bottom-desktop">
+<!-- Salsas Section -->
+<div class="mb-4 p-3 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-gray-200 dark:border-white/5">
+<p class="text-xs font-bold text-[#171212] dark:text-white mb-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-sm">water_drop</span>
+Salsas Seleccionadas
+</p>
+<div id="checkoutSaucesSection" class="text-xs text-gray-400 dark:text-gray-500 max-h-[60px] overflow-y-auto scrollbar-thin">
+<p>No hay salsas seleccionadas</p>
+</div>
+</div>
+<div class="flex justify-between items-end mb-4 px-1">
+<div>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total del Pedido</p>
+<div class="flex items-baseline gap-1">
+<p id="checkoutTotal" class="text-2xl font-bold text-[#171212] dark:text-white">$0</p>
+</div>
+</div>
+</div>
+<button onclick="handlePayment()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+<span>Confirmar Pedido</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Pantalla Tracking de Pedidos -->
+<div id="page-track" class="page">
+<div class="max-w-[430px] mx-auto bg-background-light dark:bg-background-dark min-h-screen pb-10">
+<!-- TopAppBar -->
+<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="flex items-center p-4 pb-2 justify-between">
+<button onclick="router.navigate('home')" class="text-primary flex size-12 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+</button>
+<h2 class="text-[#171212] dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-12">Seguimiento de Pedido</h2>
+</div>
+</div>
+<!-- Tracking Input Section -->
+<div class="px-4 py-4">
+<div class="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-zinc-800">
+<p class="text-[#171212] dark:text-white text-sm font-bold uppercase tracking-wider mb-3">Buscar Pedido</p>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<input id="trackOrderInput" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 focus:ring-primary focus:border-primary h-12 px-4 text-base font-normal transition-all" placeholder="SR-5521-B" value=""/>
+</div>
+<button onclick="searchOrder()" class="bg-primary hover:bg-primary/90 text-white font-bold px-6 rounded-lg transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Progress Bar Section -->
+<div id="trackingContent" class="px-4 py-2">
+<!-- Contenido se carga dinámicamente desde order-tracking.js -->
+</div>
+</div>
+</div>
+
+<!-- Pantalla Validación de Pedido -->
+<div id="page-admin-validate" class="page">
+<div class="bg-background-light dark:bg-background-dark text-[#171212] dark:text-white min-h-screen flex items-center justify-center">
+<div class="max-w-[480px] lg:max-w-[600px] mobile-container mx-auto px-6 py-12">
+<!-- Validation Icon -->
+<div class="flex justify-center mb-8">
+<div class="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-6xl">verified</span>
+</div>
+</div>
+<!-- Validation Content -->
+<div id="validateOrderContent" class="text-center mb-8">
+<!-- Se llenará dinámicamente -->
+</div>
+<!-- Back Button -->
+<button onclick="router.navigate('home')" class="w-full bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[#171212] dark:text-white font-bold py-4 px-6 rounded-xl border-2 border-gray-200 dark:border-zinc-700 flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-base">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>Volver al Inicio</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Pantalla Profile (placeholder) -->
+<div id="page-profile" class="page"></div>
+<!-- Pantalla 7: Admin Login -->
+<div id="page-admin-login" class="page">
+<div class="bg-background-light dark:bg-background-dark text-[#171212] dark:text-white min-h-screen flex items-center justify-center">
+<div class="max-w-[480px] lg:max-w-[600px] mobile-container mx-auto px-6 py-12">
+<!-- Login Icon -->
+<div class="flex justify-center mb-8">
+<div class="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-6xl">lock</span>
+</div>
+</div>
+<!-- Login Form -->
+<div class="text-center mb-8">
+<h1 class="text-[#171212] dark:text-white text-3xl lg:text-4xl font-extrabold leading-tight mb-4">Panel de Administración</h1>
+<p class="text-[#836967] dark:text-zinc-400 text-base lg:text-lg leading-relaxed mb-6">
+Ingresa el código de acceso para continuar
+</p>
+<!-- Login Card -->
+<div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-zinc-800 mb-8">
+<div class="space-y-4">
+<div class="flex flex-col w-full">
+<label class="text-[#171212] dark:text-gray-300 text-sm font-medium leading-normal pb-1.5 px-1 mb-2">Código de Acceso</label>
+<input id="adminCode" type="password" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-[15px] text-base font-normal text-center tracking-widest" placeholder="••••••" maxlength="6" autocomplete="off"/>
+<p id="adminCodeError" class="text-xs text-red-500 mt-2 hidden">Código incorrecto. Intenta nuevamente.</p>
+</div>
+<button onclick="handleAdminLogin()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-base">
+<span class="material-symbols-outlined">login</span>
+<span>Acceder</span>
+</button>
+</div>
+</div>
+<!-- Back Button -->
+<button onclick="router.navigate('home')" class="w-full bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-[#171212] dark:text-white font-bold py-4 px-6 rounded-xl border-2 border-gray-200 dark:border-zinc-700 flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-base">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>Volver al Inicio</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pantalla 8: Admin Panel -->
+<div id="page-admin" class="page">
+<div class="bg-background-light dark:bg-background-dark text-[#171212] dark:text-white min-h-screen">
+<div class="max-w-md lg:max-w-7xl mx-auto lg:px-6">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+<div class="flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4">
+<div class="flex items-center gap-3 lg:gap-4">
+<div class="bg-primary text-white p-2 lg:p-3 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined !text-[24px] lg:!text-[28px]">speed</span>
+</div>
+<div>
+<h1 class="text-xl lg:text-2xl font-bold font-display leading-none">Speed Roll</h1>
+<p class="text-[10px] lg:text-xs uppercase tracking-widest text-primary font-bold">Admin Console</p>
+</div>
+</div>
+<div class="flex items-center gap-2 lg:gap-3">
+<button onclick="router.navigate('home')" class="relative p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Salir">
+<span class="material-symbols-outlined lg:!text-xl">logout</span>
+</button>
+<button class="relative p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined lg:!text-xl">notifications</span>
+<span class="absolute top-2 right-2 flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</button>
+<div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden border border-gray-100 dark:border-gray-800">
+<img class="w-full h-full object-cover" alt="Admin user profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu7iZLPOmh6OUMmOMgJqWBWqmthx01kDsup34SGyPZwpN3GxYcAMkOCUfqvgrwEpbe-tdhjfYOmg7SAbjzIQeWKmcxeKevSnPQeJrSdwwby_gh3lfRW9qMFbgLK6JzllySKUExK_pHTsaw1OtCb_uKzi2YyMJR7A2wnEBRRFb6NpeY2QxxUDF1eO8MUfzRNZRa60x0zMeQkaIVL9EJq2m1zAshfJTzLIJaH3DXncQU-Dj6xXt-hylM0INX5940ata-gOS5X_r1cYM8"/>
+</div>
+</div>
+</div>
+<main class="pb-24 lg:pb-8">
+<!-- Tabs: Inventario, Pedidos, Repartidores y Ventas -->
+<div class="flex gap-2 lg:gap-3 p-4 lg:p-6 border-b border-gray-100 dark:border-gray-800 overflow-x-auto no-scrollbar">
+<button onclick="showAdminTab('inventory')" id="adminTabInventory" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-primary text-white transition-all hover:brightness-110 shrink-0">
+Inventario
+</button>
+<button onclick="showAdminTab('orders')" id="adminTabOrders" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
+Pedidos
+</button>
+<button onclick="showAdminTab('delivery')" id="adminTabDelivery" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
+Repartidores
+</button>
+<button onclick="showAdminTab('sales')" id="adminTabSales" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
+Ventas
+</button>
+</div>
+
+<!-- Tab: Inventario -->
+<div id="adminTabInventoryContent" class="admin-tab-content">
+<!-- Filter Chips -->
+<div class="flex gap-2 lg:gap-3 p-4 lg:p-6 overflow-x-auto no-scrollbar">
+<div class="flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 lg:px-6 shadow-md">
+<p class="text-white text-sm lg:text-base font-semibold">Todos</p>
+</div>
+<div class="flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-card-bg dark:bg-gray-800 px-5 lg:px-6 border border-gray-200 dark:border-gray-700 hover:border-primary transition-colors cursor-pointer">
+<p class="text-sm lg:text-base font-medium">Sushi Burgers</p>
+</div>
+<div class="flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-card-bg dark:bg-gray-800 px-5 lg:px-6 border border-gray-200 dark:border-gray-700 hover:border-primary transition-colors cursor-pointer">
+<p class="text-sm lg:text-base font-medium">Rolls Fusion</p>
+</div>
+<div class="flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-card-bg dark:bg-gray-800 px-5 lg:px-6 border border-gray-200 dark:border-gray-700 hover:border-primary transition-colors cursor-pointer">
+<p class="text-sm lg:text-base font-medium">Bebidas</p>
+</div>
+</div>
+<!-- Section Header -->
+<div class="flex items-center justify-between px-4 lg:px-6 pt-4 lg:pt-6">
+<h3 class="font-display text-lg lg:text-2xl font-bold">Menú de Cocina</h3>
+<span id="adminItemsCount" class="text-xs lg:text-sm font-bold text-gray-400">6 ITEMS TOTALES</span>
+</div>
+<!-- Inventory List -->
+<div id="adminInventoryList" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4 p-4 lg:p-6">
+<!-- Items se generarán dinámicamente -->
+</div>
+</div>
+
+<!-- Tab: Repartidores -->
+<div id="adminTabDeliveryContent" class="admin-tab-content hidden">
+<!-- Section Header -->
+<div class="flex items-center justify-between px-4 lg:px-6 pt-4 lg:pt-6 pb-2">
+<h3 class="text-[#181112] dark:text-white text-lg lg:text-2xl font-bold font-display tracking-tight">Gestión de Repartidores</h3>
+<button onclick="showAddDeliveryPersonModal()" class="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+Agregar
+</button>
+</div>
+<!-- Delivery Persons List -->
+<div id="adminDeliveryPersonsList" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 p-4 lg:p-6">
+<!-- Repartidores se generarán dinámicamente -->
+</div>
+</div>
+
+<!-- Tab: Pedidos -->
+<div id="adminTabOrdersContent" class="admin-tab-content hidden">
+<!-- Search Bar Component -->
+<div class="px-4 lg:px-6 py-2 lg:py-4">
+<label class="flex flex-col w-full lg:max-w-md">
+<div class="flex w-full items-center rounded-xl lg:rounded-2xl bg-gray-100 dark:bg-gray-800/50 border border-transparent focus-within:border-primary/30 transition-all">
+<div class="text-gray-400 flex items-center justify-center pl-4 lg:pl-5">
+<span class="material-symbols-outlined !text-[20px] lg:!text-xl">search</span>
+</div>
+<input id="adminOrdersSearch" type="text" class="w-full bg-transparent border-none focus:ring-0 text-sm lg:text-base py-3 lg:py-4 px-3 placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500" placeholder="Buscar ID de pedido o cliente..." oninput="filterOrdersBySearch(this.value)"/>
+<div class="pr-3 lg:pr-4 text-gray-400">
+<span class="material-symbols-outlined !text-[18px] lg:!text-xl">tune</span>
+</div>
+</div>
+</label>
+</div>
+<!-- Status Filter Chips -->
+<div class="flex gap-2 lg:gap-3 px-4 lg:px-6 pb-4 lg:pb-6 overflow-x-auto no-scrollbar">
+<button onclick="filterOrders('all')" data-filter="all" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 lg:px-6 transition-colors cursor-pointer hover:brightness-110">
+<p class="text-white text-xs lg:text-sm font-semibold font-display">Todos</p>
+</button>
+<button onclick="filterOrders('pending')" data-filter="pending" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-5 lg:px-6 transition-colors cursor-pointer hover:border-primary">
+<p class="text-gray-600 dark:text-gray-300 text-xs lg:text-sm font-semibold font-display">Nuevos <span id="filterNewCount" class="text-gray-400">(0)</span></p>
+</button>
+<button onclick="filterOrders('preparing')" data-filter="preparing" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-5 lg:px-6 transition-colors cursor-pointer hover:border-primary">
+<p class="text-gray-600 dark:text-gray-300 text-xs lg:text-sm font-semibold font-display">Preparando</p>
+</button>
+<button onclick="filterOrders('dispatched')" data-filter="dispatched" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-5 lg:px-6 transition-colors cursor-pointer hover:border-primary">
+<p class="text-gray-600 dark:text-gray-300 text-xs lg:text-sm font-semibold font-display">En Camino</p>
+</button>
+<button onclick="filterOrders('cancelled')" data-filter="cancelled" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-5 lg:px-6 transition-colors cursor-pointer hover:border-primary">
+<p class="text-gray-600 dark:text-gray-300 text-xs lg:text-sm font-semibold font-display">Cancelados</p>
+</button>
+</div>
+<!-- Delivery Person Filter (se cargará dinámicamente) -->
+<div id="deliveryPersonFiltersContainer" class="px-4 lg:px-6 pb-2 hidden">
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">Filtrar por Repartidor:</p>
+<div class="flex gap-2 overflow-x-auto no-scrollbar" id="deliveryPersonFilters">
+<!-- Filtros de repartidores se generarán dinámicamente -->
+</div>
+</div>
+<!-- Section Header -->
+<div class="flex items-center justify-between px-4 lg:px-6 pt-2 lg:pt-4">
+<h3 class="text-[#181112] dark:text-white text-lg lg:text-2xl font-bold font-display tracking-tight">Pedidos de Hoy</h3>
+<span id="adminOrdersCount" class="text-xs lg:text-sm font-medium text-gray-400 uppercase">0 Activos</span>
+</div>
+<!-- Orders List -->
+<div id="adminOrdersList" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 p-4 lg:p-6">
+<!-- Pedidos se generarán dinámicamente -->
+</div>
+</div>
+
+<!-- Tab: Ventas -->
+<div id="adminTabSalesContent" class="admin-tab-content hidden">
+<!-- KPI Horizontal Scroller -->
+<div class="overflow-x-auto hide-scrollbar flex gap-4 p-4 mt-2">
+<!-- Today's Sales -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ventas de Hoy</p>
+<p class="text-xl font-extrabold mt-1 text-primary" id="salesToday">$0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-green-600" id="salesTodayTrend">trending_up</span>
+<span class="text-[10px] font-bold text-green-600" id="salesTodayChange">+0%</span>
+</div>
+</div>
+<!-- Weekly Sales -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ventas Semanales</p>
+<p class="text-xl font-extrabold mt-1 text-[#171112] dark:text-white" id="salesWeekly">$0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-green-600" id="salesWeeklyTrend">trending_up</span>
+<span class="text-[10px] font-bold text-green-600" id="salesWeeklyChange">+0%</span>
+</div>
+</div>
+<!-- Monthly Sales -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ventas Mensuales</p>
+<p class="text-xl font-extrabold mt-1 text-[#171112] dark:text-white" id="salesMonthly">$0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-green-600" id="salesMonthlyTrend">trending_up</span>
+<span class="text-[10px] font-bold text-green-600" id="salesMonthlyChange">+0%</span>
+</div>
+</div>
+<!-- Annual Sales -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ventas Anuales</p>
+<p class="text-xl font-extrabold mt-1 text-[#171112] dark:text-white" id="salesAnnual">$0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-green-600" id="salesAnnualTrend">trending_up</span>
+<span class="text-[10px] font-bold text-green-600" id="salesAnnualChange">+0%</span>
+</div>
+</div>
+<!-- Avg Ticket -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ticket Promedio</p>
+<p class="text-xl font-extrabold mt-1 text-[#171112] dark:text-white" id="avgTicket">$0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-red-500" id="avgTicketTrend">trending_down</span>
+<span class="text-[10px] font-bold text-red-500" id="avgTicketChange">-0%</span>
+</div>
+</div>
+<!-- Total Orders -->
+<div class="flex flex-col min-w-[140px] bg-white dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+<p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Pedidos</p>
+<p class="text-xl font-extrabold mt-1 text-[#171112] dark:text-white" id="totalOrders">0</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-xs text-green-600" id="totalOrdersTrend">trending_up</span>
+<span class="text-[10px] font-bold text-green-600" id="totalOrdersChange">+0%</span>
+</div>
+</div>
+</div>
+<!-- Sales Trends Section -->
+<section class="mt-4 px-4">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-extrabold">Tendencias de Ventas</h3>
+<div class="flex gap-2">
+<button onclick="setSalesPeriod('daily')" id="salesPeriodDaily" class="px-3 py-1 bg-primary text-white text-[10px] font-bold rounded-full">Diario</button>
+<button onclick="setSalesPeriod('weekly')" id="salesPeriodWeekly" class="px-3 py-1 bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-bold rounded-full">Semanal</button>
+</div>
+</div>
+<!-- Main Line Chart Card -->
+<div class="bg-white dark:bg-white/5 p-6 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+<div class="flex justify-between items-end mb-6">
+<div>
+<p class="text-sm font-medium text-gray-500">Rendimiento de Ingresos</p>
+<p class="text-3xl font-extrabold mt-1 text-primary" id="revenuePerformance">$0</p>
+</div>
+<p class="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-md" id="revenueComparison">+0% vs prev</p>
+</div>
+<div class="relative h-40 w-full">
+<canvas id="salesChart" class="w-full h-full"></canvas>
+</div>
+<div class="flex justify-between mt-4" id="chartLabels">
+<p class="text-[10px] font-bold text-gray-400">LUN</p>
+<p class="text-[10px] font-bold text-gray-400">MAR</p>
+<p class="text-[10px] font-bold text-gray-400">MIE</p>
+<p class="text-[10px] font-bold text-gray-400">JUE</p>
+<p class="text-[10px] font-bold text-gray-400">VIE</p>
+<p class="text-[10px] font-bold text-gray-400">SAB</p>
+<p class="text-[10px] font-bold text-gray-400">DOM</p>
+</div>
+</div>
+</section>
+<!-- Product & Payment Breakdown Grid -->
+<section class="mt-8 px-4 grid grid-cols-1 gap-6">
+<!-- Top 5 Products Bar Chart -->
+<div class="bg-white dark:bg-white/5 p-6 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+<h4 class="text-md font-extrabold mb-6">Top 5 Productos</h4>
+<div class="space-y-4" id="topProductsList">
+<!-- Se generará dinámicamente -->
+</div>
+</div>
+<!-- Payment Methods Donut & Fulfillment -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Payment Donut -->
+<div class="bg-white dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+<h4 class="text-xs font-extrabold mb-4">Métodos de Pago</h4>
+<div class="relative w-24 h-24 mx-auto mb-4">
+<canvas id="paymentChart" class="w-full h-full"></canvas>
+</div>
+<div class="space-y-1" id="paymentMethodsList">
+<!-- Se generará dinámicamente -->
+</div>
+</div>
+<!-- Fulfillment Bar -->
+<div class="bg-white dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
+<h4 class="text-xs font-extrabold mb-4">Tipo de Servicio</h4>
+<div class="flex flex-col gap-6 h-24 justify-end">
+<div class="flex gap-4 items-end justify-center">
+<div class="flex flex-col items-center gap-2">
+<div class="w-6 bg-primary rounded-t-sm" id="pickupBar" style="height: 60px;"></div>
+<span class="text-[8px] font-bold uppercase">Retiro</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-6 bg-primary/40 rounded-t-sm" id="deliveryBar" style="height: 40px;"></div>
+<span class="text-[8px] font-bold uppercase">Despacho</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Comparison Module -->
+<section class="mt-8 px-4">
+<div class="bg-primary p-6 rounded-2xl shadow-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-8xl">insights</span>
+</div>
+<h4 class="text-white text-sm font-medium">Meta Mensual</h4>
+<p class="text-white text-3xl font-extrabold mt-1" id="monthlyTarget">0% Alcanzado</p>
+<div class="mt-4 h-2 w-full bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white rounded-full" id="monthlyTargetBar" style="width: 0%;"></div>
+</div>
+<p class="text-white/80 text-[10px] font-medium mt-3" id="monthlyTargetText">Establece una meta mensual para comenzar</p>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button (solo visible en tab de pedidos) -->
+<div id="adminFAB" class="fixed bottom-24 right-8 lg:bottom-8 lg:right-8 z-50" style="display: none;">
+<button onclick="router.navigate('admin-manual-order')" class="flex items-center justify-center size-14 lg:size-16 rounded-xl lg:rounded-2xl bg-primary text-white shadow-lg lg:shadow-xl active:scale-95 hover:scale-105 transition-transform" title="Crear Pedido Manual">
+<span class="material-symbols-outlined" style="font-size: 32px; lg:font-size: 36px;">add</span>
+</button>
+</div>
+<!-- Navigation Bar (iOS Style) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 px-6 py-3 flex justify-center items-center z-40 max-w-md mx-auto">
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px] font-bold">STOCK</span>
+</div>
+</nav>
+</div>
+</div>
+</div>
+
+<!-- Pantalla 9: Crear Pedido Manual (Página Completa) -->
+<div id="page-admin-manual-order" class="page">
+<div class="bg-background-light dark:bg-background-dark text-[#181112] dark:text-gray-100 min-h-screen">
+<div class="max-w-md lg:max-w-7xl mx-auto lg:px-6">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+<div class="flex items-center p-4 lg:p-6 justify-between">
+<div class="flex items-center gap-3">
+<button onclick="router.navigate('admin')" class="text-[#181112] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2 transition-colors">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+</button>
+<h2 class="text-lg lg:text-2xl font-bold leading-tight tracking-tight">Crear Pedido Manual</h2>
+</div>
+<button onclick="router.navigate('admin')" class="text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2 transition-colors lg:hidden">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<main class="flex-1 pb-32 lg:pb-8 overflow-y-auto">
+<!-- Customer Info Section -->
+<section class="mt-4 lg:mt-6">
+<div class="flex items-center px-4 lg:px-8 pt-4 lg:pt-6 pb-2">
+<h3 class="text-[11px] lg:text-sm font-extrabold tracking-[0.1em] text-gray-400 uppercase">Datos del Cliente</h3>
+</div>
+<div class="px-4 lg:px-8 py-2 lg:py-4 space-y-4">
+<div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 lg:p-6 border border-gray-100 dark:border-gray-800">
+<label class="flex flex-col w-full mb-4">
+<p class="text-sm lg:text-base font-semibold pb-1.5 text-gray-700 dark:text-gray-300">Nombre Completo <span class="text-red-500">*</span></p>
+<input id="manualOrderFullName" type="text" class="form-input w-full rounded-lg lg:rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark h-12 lg:h-14 placeholder:text-gray-400 text-sm lg:text-base focus:ring-primary focus:border-primary transition-all" placeholder="Ej: Juan Pérez" value="" required/>
+</label>
+<label class="flex flex-col w-full mb-4">
+<p class="text-sm lg:text-base font-semibold pb-1.5 text-gray-700 dark:text-gray-300">Teléfono <span class="text-red-500">*</span></p>
+<input id="manualOrderPhone" type="tel" class="form-input w-full rounded-lg lg:rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark h-12 lg:h-14 placeholder:text-gray-400 text-sm lg:text-base focus:ring-primary focus:border-primary transition-all" placeholder="+56912345678" value="" required pattern="^\+569[0-9]{8}$"/>
+</label>
+<div class="flex bg-gray-200/50 dark:bg-gray-800 p-1 rounded-xl mb-4">
+<label class="flex-1 flex items-center justify-center h-10 lg:h-12 rounded-lg cursor-pointer bg-white dark:bg-gray-700 shadow-sm text-primary font-bold text-sm lg:text-base transition-all" id="manualOrderDeliveryLabel">
+<span>Despacho</span>
+<input checked id="manualOrderDelivery" name="manualOrderType" type="radio" value="despacho" onchange="toggleManualOrderType('despacho')"/>
+</label>
+<label class="flex-1 flex items-center justify-center h-10 lg:h-12 rounded-lg cursor-pointer text-gray-500 font-medium text-sm lg:text-base transition-all" id="manualOrderPickupLabel">
+<span>Retiro</span>
+<input id="manualOrderPickup" name="manualOrderType" type="radio" value="retiro" onchange="toggleManualOrderType('retiro')"/>
+</label>
+</div>
+<label class="flex flex-col w-full" id="manualOrderAddressLabel">
+<p class="text-sm lg:text-base font-semibold pb-1.5 text-gray-700 dark:text-gray-300">Dirección de Despacho</p>
+<textarea id="manualOrderAddress" class="form-textarea w-full rounded-lg lg:rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark min-h-[80px] lg:min-h-[100px] placeholder:text-gray-400 text-sm lg:text-base focus:ring-primary focus:border-primary transition-all" placeholder="Ingresa dirección completa..."></textarea>
+</label>
+</div>
+</div>
+</section>
+<!-- Product Selection Section -->
+<section class="mt-6 lg:mt-8">
+<div class="flex items-center justify-between px-4 lg:px-8 pt-4 lg:pt-6 pb-2">
+<h3 class="text-[11px] lg:text-sm font-extrabold tracking-[0.1em] text-gray-400 uppercase">Selección de Productos</h3>
+<span class="text-xs lg:text-sm font-medium text-primary bg-primary/10 px-2 lg:px-3 py-0.5 lg:py-1 rounded-full">Menú</span>
+</div>
+<div class="px-4 lg:px-8 py-2 lg:py-4">
+<!-- Search Bar -->
+<div class="relative mb-4 lg:mb-6">
+<span class="material-symbols-outlined absolute left-3 lg:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl lg:text-2xl">search</span>
+<input id="manualOrderSearch" type="text" class="form-input w-full pl-10 lg:pl-12 rounded-xl lg:rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 h-12 lg:h-14 placeholder:text-gray-400 text-sm lg:text-base focus:ring-primary focus:border-primary transition-all" placeholder="Buscar productos..." oninput="filterManualOrderProducts(this.value)"/>
+</div>
+<!-- Product List -->
+<div id="manualOrderProductsList" class="space-y-3 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4 lg:space-y-0">
+<!-- Los productos se cargarán dinámicamente -->
+</div>
+</div>
+</section>
+<!-- Selected Items Summary -->
+<section class="mt-6 lg:mt-8 mb-8 lg:mb-6" id="manualOrderSummarySection" style="display: none;">
+<div class="bg-white dark:bg-gray-900 rounded-xl lg:rounded-2xl p-4 lg:p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+<div class="flex items-center mb-4 lg:mb-6">
+<h3 class="text-[11px] lg:text-sm font-extrabold tracking-[0.1em] text-gray-400 uppercase">Resumen Seleccionado</h3>
+</div>
+<div id="manualOrderSelectedItems" class="space-y-2 mb-4 lg:mb-6 max-h-[300px] lg:max-h-[400px] overflow-y-auto scrollbar-thin">
+<!-- Items seleccionados se mostrarán aquí -->
+</div>
+<div class="border-t border-gray-200 dark:border-gray-800 pt-4 space-y-2">
+<div class="flex justify-between text-sm lg:text-base">
+<span class="text-gray-500 dark:text-gray-400">Subtotal</span>
+<span id="manualOrderSubtotal" class="font-medium text-gray-900 dark:text-white">$0</span>
+</div>
+<div class="flex justify-between text-sm lg:text-base" id="manualOrderDeliveryFeeRow" style="display: none;">
+<span class="text-gray-500 dark:text-gray-400">Costo de Despacho</span>
+<span id="manualOrderDeliveryFee" class="font-medium text-gray-900 dark:text-white">$3.000</span>
+</div>
+<div class="flex justify-between text-base lg:text-lg font-bold pt-2 border-t border-gray-200 dark:border-gray-800 mt-2">
+<span class="text-gray-900 dark:text-white">Total</span>
+<span id="manualOrderTotalSummary" class="text-primary">$0</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Footer -->
+<footer class="sticky bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 px-4 lg:px-8 pt-4 lg:pt-6 pb-8 lg:pb-6 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+<div class="max-w-md lg:max-w-full mx-auto">
+<div class="flex items-end justify-between mb-4 lg:mb-6">
+<div>
+<p class="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Total Final</p>
+<p id="manualOrderTotal" class="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white leading-none">$0</p>
+</div>
+<div class="text-right">
+<span id="manualOrderItemsCount" class="text-[10px] lg:text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 lg:px-3 py-1 lg:py-1.5 rounded-md uppercase">0 Items</span>
+</div>
+</div>
+<div class="flex gap-3 lg:gap-4">
+<button onclick="router.navigate('admin')" class="flex-1 lg:flex-none lg:px-8 h-14 rounded-xl lg:rounded-2xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold text-sm lg:text-base bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+Cancelar
+</button>
+<button onclick="createManualOrder()" class="flex-[2] lg:flex-1 h-14 rounded-xl lg:rounded-2xl bg-primary text-white font-bold text-base lg:text-lg shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
+Crear Pedido
+</button>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</div>
+<!-- Pantalla 6: Confirmación de Pedido -->
+<div id="page-confirmation" class="page">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden px-4 py-6 lg:px-8 lg:py-12 bg-background-light dark:bg-background-dark transition-colors duration-300">
+<!-- Container Principal - Responsive -->
+<div class="w-full max-w-md lg:max-w-4xl mx-auto">
+<!-- Header Controls -->
+<div class="flex w-full items-center justify-between mb-6 lg:mb-8">
+<div class="text-[#181112] dark:text-white cursor-pointer hover:opacity-70 transition-opacity" onclick="router.navigate('home')">
+<span class="material-symbols-outlined text-2xl lg:text-3xl">close</span>
+</div>
+<h2 class="text-[#181112] dark:text-white text-lg lg:text-2xl font-bold tracking-tight">Pedido Confirmado</h2>
+<div class="w-6 lg:w-8"></div> <!-- Spacer for centering -->
+</div>
+
+<!-- Contenedor Principal - Layout Desktop -->
+<div class="flex flex-col lg:flex-row lg:items-start lg:gap-8 lg:justify-center">
+<!-- Columna Izquierda - Success Visual & Summary -->
+<div class="flex-1 lg:max-w-lg">
+<!-- Success Visual Section -->
+<div class="relative flex flex-col items-center justify-center py-6 lg:py-8 w-full">
+<!-- Confetti Simulation (Static representations) -->
+<div class="confetti-dot bg-primary top-0 left-1/4 opacity-40"></div>
+<div class="confetti-dot bg-success top-10 right-1/4 opacity-40"></div>
+<div class="confetti-dot bg-primary bottom-0 right-1/3 opacity-40"></div>
+<div class="confetti-dot bg-success bottom-10 left-1/3 opacity-40"></div>
+<!-- Icon Circle -->
+<div class="relative flex items-center justify-center rounded-full border-[6px] lg:border-[8px] border-primary p-4 lg:p-6 shadow-lg shadow-primary/20 animate-pulse-subtle">
+<div class="flex h-20 w-20 lg:h-24 lg:w-24 items-center justify-center rounded-full bg-success/10">
+<span class="material-symbols-outlined text-success text-6xl lg:text-7xl font-bold">check</span>
+</div>
+</div>
+<!-- Headline Text -->
+<h1 class="text-[#181112] dark:text-white text-[32px] lg:text-5xl font-extrabold leading-tight tracking-tight text-center mt-6 lg:mt-8 px-4">
+¡Gracias por tu pedido!
+</h1>
+<p class="text-[#886369] dark:text-gray-400 text-base lg:text-xl font-medium mt-3 lg:mt-4" id="confirmationOrderId">
+Pedido #SR-1234
+</p>
+</div>
+
+<!-- Order Summary Card -->
+<div class="w-full mt-6 lg:mt-8">
+<div class="bg-white dark:bg-[#252525] rounded-2xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-[0_15px_40px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] transition-all duration-300">
+<!-- Time & Status Bar -->
+<div class="p-5 lg:p-6 border-b border-gray-50 dark:border-gray-800 flex items-center gap-4 bg-gradient-to-r from-primary/5 to-transparent">
+<div class="flex h-12 w-12 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+<span class="material-symbols-outlined text-primary text-2xl lg:text-3xl">schedule</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[#886369] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Tiempo estimado</span>
+<p class="text-[#181112] dark:text-white text-lg lg:text-xl font-bold leading-none" id="confirmationEstimatedTime">Llega en 35-45 min</p>
+</div>
+</div>
+<!-- Itemized Summary -->
+<div class="p-5 lg:p-6 flex flex-col gap-4 lg:gap-5" id="confirmationItemsList">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="text-primary font-bold text-base lg:text-lg">1x</span>
+<p class="text-[#181112] dark:text-white font-medium text-sm lg:text-base">Dragon Roll Especial</p>
+</div>
+<p class="text-[#181112] dark:text-white font-semibold text-sm lg:text-base">$18.50</p>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="text-primary font-bold text-base lg:text-lg">1x</span>
+<p class="text-[#181112] dark:text-white font-medium text-sm lg:text-base">Wagyu Fusion Burger</p>
+</div>
+<p class="text-[#181112] dark:text-white font-semibold text-sm lg:text-base">$22.00</p>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="text-primary font-bold text-base lg:text-lg">1x</span>
+<p class="text-[#181112] dark:text-white font-medium text-sm lg:text-base">Envío</p>
+</div>
+<p class="text-[#181112] dark:text-white font-semibold text-sm lg:text-base">$3.50</p>
+</div>
+</div>
+<!-- Total Amount -->
+<div class="p-5 lg:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-[#2a2a2a] dark:to-[#1f1f1f] flex justify-between items-center border-t-2 border-primary/20">
+<span class="text-[#181112] dark:text-white text-lg lg:text-xl font-extrabold">Total Pagado</span>
+<span class="text-primary text-2xl lg:text-3xl font-extrabold" id="confirmationTotal">$44.00</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Columna Derecha - Actions & Map (Desktop) -->
+<div class="flex-1 lg:max-w-md mt-8 lg:mt-0 lg:flex lg:flex-col lg:justify-between">
+<!-- Actions -->
+<div class="w-full space-y-4 lg:space-y-6">
+<button onclick="goToTracking()" class="w-full bg-primary hover:bg-primary/90 active:bg-primary/95 text-white py-4 lg:py-5 rounded-xl lg:rounded-2xl text-lg lg:text-xl font-bold transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 flex items-center justify-center gap-2 lg:gap-3 hover:scale-[1.02] active:scale-[0.98]">
+<span class="material-symbols-outlined text-2xl lg:text-3xl">map</span>
+<span>Seguir mi pedido</span>
+</button>
+<div class="w-full flex justify-center">
+<button onclick="router.navigate('home')" class="text-[#886369] dark:text-gray-400 font-bold text-base lg:text-lg hover:text-primary transition-colors underline decoration-2 underline-offset-4 hover:decoration-primary">
+Volver al inicio
+</button>
+</div>
+</div>
+
+<!-- Map Snippet (Small visualization of delivery) -->
+<div class="w-full mt-6 lg:mt-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 rounded-xl lg:rounded-2xl overflow-hidden h-32 lg:h-48 relative group cursor-pointer">
+<div class="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 z-10 transition-colors duration-300"></div>
+<img class="w-full h-full object-cover" data-alt="Mapa abstracto de la ruta de entrega" data-location="Ciudad de México" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4ClTyX-bU-NIJ0iBSVvfMyHPCy9FSKv6w-8nR5CPhokM51suZ5dfc3Zqn2-v_RNphvcyqBhpxF6Pdpas_7osx9c9OVoTknPADjQ2IrMdVrQBNbAAw-d8-gYNAEfomgOUlo51hwAGmkTg1aVAnc0bU3DhzvQhnUj6jTkxo0CPhSpCcdWEyy8qFo31GEePUelZHM_hE7Pw6Gk-A7UNQ95gz0ql1DyZ1xzItHLrer7BgpoUkkQ5ELxF_8cwn-aJASi96kbBnWCSErJ3p"/>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+<span class="material-symbols-outlined text-primary text-3xl lg:text-4xl drop-shadow-lg">location_on</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pantalla 3: Product Detail -->
+<div id="page-product" class="page">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden pb-32 lg:pb-8 max-w-[430px] lg:max-w-[900px] mobile-container mx-auto shadow-2xl">
+<!-- Top App Bar (Overlaid on Image) -->
+<div class="fixed lg:sticky top-0 z-50 flex w-full items-center justify-between p-4 bg-gradient-to-b from-black/40 lg:from-background-light/80 lg:dark:from-background-dark/80 to-transparent lg:to-transparent lg:backdrop-blur-md max-w-[430px] lg:max-w-[900px] fixed-top-desktop">
+<button onclick="router.navigate('menu')" class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<!-- Header Image Section -->
+<div class="@container w-full">
+<div class="relative w-full h-[45vh] min-h-80 overflow-hidden bg-white" id="productImageContainer">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover" id="productImage" style="background-image: url(''); background-color: #b5352c;">
+</div>
+</div>
+</div>
+<!-- Product Details -->
+<div class="px-5 pt-8" id="productDetailsContainer">
+<div class="flex items-center justify-between">
+<span id="productBadge" class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider hidden"></span>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined !text-lg">star_rate</span>
+<span class="text-sm font-bold">4.9</span>
+</div>
+</div>
+<!-- Headline -->
+<h1 id="productName" class="text-[#171212] dark:text-white tracking-tight text-3xl font-extrabold leading-tight pt-3"></h1>
+<!-- Price -->
+<h2 id="productPrice" class="text-primary text-2xl font-bold leading-tight pt-2"></h2>
+<!-- Body Description -->
+<p id="productDescription" class="text-[#171212]/70 dark:text-white/70 text-base font-normal leading-relaxed pt-4"></p>
+</div>
+<div class="h-4"></div>
+<!-- Customization Modules -->
+<div class="px-5 lg:px-8 space-y-6 form-section" id="productIngredientsContainer">
+<!-- Ingredientes se cargarán dinámicamente -->
+</div>
+<!-- Safe area spacer for modern iOS -->
+<div class="h-8"></div>
+</div>
+</div>
+
+<!-- Chatbot Flotante -->
+<div id="chatbotContainer" class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50">
+  <!-- Ventana de Chat -->
+  <div id="chatbotWindow" class="hidden bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 w-[90vw] max-w-[400px] h-[600px] flex flex-col">
+    <!-- Header -->
+    <div class="bg-primary text-white p-4 rounded-t-2xl flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+          <span class="material-symbols-outlined">smart_toy</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-sm lg:text-base">Asistente Speed Roll</h3>
+          <p class="text-xs opacity-90">En línea</p>
+        </div>
+      </div>
+      <button onclick="toggleChatbot()" class="text-white hover:bg-white/20 rounded-full p-1 transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <!-- Mensajes -->
+    <div id="chatbotMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Mensajes se generan dinámicamente -->
+    </div>
+    
+    <!-- Input -->
+    <div class="p-4 border-t border-gray-200 dark:border-zinc-800">
+      <div class="flex gap-2">
+        <input type="text" id="chatbotInput" placeholder="Escribe tu pregunta..." 
+          class="flex-1 rounded-lg border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-[#171212] dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500" 
+          onkeypress="handleChatbotKeyPress(event)">
+        <button onclick="sendChatbotMessage()" class="bg-primary text-white rounded-lg px-4 py-2 hover:bg-primary/90 transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-lg">send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Botón Flotante -->
+  <button id="chatbotButton" onclick="toggleChatbot()" 
+    class="w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center relative">
+    <span id="chatbotButtonIcon" class="material-symbols-outlined text-2xl">chat</span>
+    <span id="chatbotNotification" class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full hidden"></span>
+  </button>
+</div>
+
+<!-- JavaScript Modularizado -->
+<!-- config.js eliminado - Firebase ya se inicializa como módulo arriba -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/router.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/checkout.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/main.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/order-tracking.js"></script>
+<script src="js/admin-orders.js"></script>
+<script src="js/admin-delivery.js"></script>
+<script src="js/order-validation.js"></script>
+<script src="js/manual-order.js"></script>
+<script src="js/admin-sales.js"></script>
+</body>
+</html>

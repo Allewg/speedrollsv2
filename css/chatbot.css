@@ -1,0 +1,218 @@
+/* ========== ESTILOS DEL CHATBOT ========== */
+
+/* Contenedor del chatbot */
+#chatbotContainer {
+  font-family: 'Epilogue', sans-serif;
+}
+
+/* Ventana de chat */
+#chatbotWindow {
+  animation: slideUp 0.3s ease-out;
+  transform-origin: bottom right;
+}
+
+#chatbotWindow.hidden {
+  display: none !important;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Botón flotante */
+#chatbotButton {
+  animation: pulse 2s infinite;
+  position: relative;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(181, 53, 44, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(181, 53, 44, 0);
+  }
+}
+
+#chatbotButton:hover {
+  animation: none;
+}
+
+/* Notificación */
+#chatbotNotification {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Mensajes del chat */
+.chatbot-message {
+  animation: fadeIn 0.3s ease-in;
+  word-wrap: break-word;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chatbot-message.user {
+  margin-left: auto;
+  max-width: 80%;
+}
+
+.chatbot-message.assistant {
+  margin-right: auto;
+  max-width: 85%;
+}
+
+.chatbot-message-content {
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  line-height: 1.5;
+}
+
+.chatbot-message.user .chatbot-message-content {
+  background: linear-gradient(135deg, #b5352c 0%, #d1453a 100%);
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.chatbot-message.assistant .chatbot-message-content {
+  background: #f3f4f6;
+  color: #171212;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.dark .chatbot-message.assistant .chatbot-message-content {
+  background: #262626;
+  color: #ffffff;
+}
+
+/* Typing indicator */
+.chatbot-typing {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.chatbot-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b5352c;
+  animation: typing 1.4s infinite;
+}
+
+.chatbot-typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chatbot-typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Botones de acción en mensajes */
+.chatbot-action-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(181, 53, 44, 0.1);
+  border: 1px solid rgba(181, 53, 44, 0.3);
+  border-radius: 0.5rem;
+  color: #b5352c;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.chatbot-action-button:hover {
+  background: rgba(181, 53, 44, 0.2);
+  border-color: rgba(181, 53, 44, 0.5);
+  transform: translateY(-1px);
+}
+
+.dark .chatbot-action-button {
+  background: rgba(181, 53, 44, 0.2);
+  border-color: rgba(181, 53, 44, 0.4);
+  color: #ff6b6b;
+}
+
+/* Scrollbar personalizado para mensajes */
+#chatbotMessages::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chatbotMessages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chatbotMessages::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.dark #chatbotMessages::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Input del chat */
+#chatbotInput:focus {
+  border-color: #b5352c;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  #chatbotContainer {
+    bottom: 5rem !important;
+    right: 1rem !important;
+  }
+  
+  #chatbotWindow {
+    width: calc(100vw - 2rem) !important;
+    max-width: none !important;
+    height: calc(100vh - 8rem) !important;
+    max-height: 600px !important;
+  }
+  
+  #chatbotButton {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
+
+/* Ocultar en páginas específicas si es necesario */
+.page-admin #chatbotContainer,
+.page-admin-login #chatbotContainer {
+  display: none;
+}

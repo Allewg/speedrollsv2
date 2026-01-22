@@ -1,0 +1,795 @@
+/* Estilos generales y componentes personalizados */
+
+/* Scrollbar utilities */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.glass-effect { backdrop-filter: blur(8px); background: rgba(255, 255, 255, 0.8); }
+.dark .glass-effect { background: rgba(26, 26, 26, 0.8); }
+
+.custom-scroll-hide::-webkit-scrollbar { display: none; }
+
+body { 
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  min-height: max(884px, 100dvh);
+}
+
+.custom-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Custom toggle styling for Admin Panel */
+.toggle-checkbox:checked + .toggle-label {
+    background-color: #6B705C; /* Matcha Green for On */
+}
+.toggle-checkbox:not(:checked) + .toggle-label {
+    background-color: #b5352c; /* Azuki Red for Off */
+}
+
+/* Scrollbar personalizado para salsas seleccionadas */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 3px;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #52525b;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #71717a;
+}
+
+/* Estilos para el routing */
+.page {
+  display: none;
+}
+.page.active {
+  display: block;
+}
+
+/* Estilos para tabs de admin */
+.admin-tab-content {
+  display: block;
+}
+
+.admin-tab-content.hidden {
+  display: none;
+}
+
+/* Ajustes responsivos para formularios de checkout */
+@media (max-width: 640px) {
+  #page-checkout .form-section {
+    padding-top: 0.5rem;
+  }
+  
+  #page-checkout select#paymentMethod {
+    background-position: right 0.75rem center !important;
+    background-size: 10px !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Estilos para salsas adicionales - diseño compacto y responsivo */
+#extraSaucesContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+#extraSaucesContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+#extraSaucesContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#extraSaucesContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.dark #extraSaucesContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mejoras táctiles para botones en móviles */
+@media (max-width: 640px) {
+  #extraSaucesContainer button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+  
+  #extraSaucesContainer input[type="number"] {
+    min-height: 36px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Responsive: Desktop adaptations */
+@media (min-width: 1024px) {
+  body {
+    background: linear-gradient(to bottom, #fdfdfc, #f8f7f6);
+  }
+  .dark body {
+    background: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
+  }
+  .mobile-container {
+    max-width: 900px !important;
+    margin: 2rem auto;
+  }
+  .mobile-container-sm {
+    max-width: 800px !important;
+    margin: 2rem auto;
+  }
+  /* Ajustar grid de productos en desktop */
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  /* Ajustar filtros de categoría en desktop: permitir wrap en múltiples filas */
+  #categoryFiltersContainer {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    padding-bottom: 1rem !important;
+  }
+  #categoryFiltersContainer > div {
+    flex-shrink: 0;
+  }
+  /* Ajustar carrusel en desktop */
+  .hero-carousel {
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(181, 53, 44, 0.3) transparent;
+    padding-bottom: 0.5rem;
+  }
+  .hero-carousel::-webkit-scrollbar {
+    height: 8px;
+  }
+  .hero-carousel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+  .hero-carousel::-webkit-scrollbar-thumb {
+    background-color: rgba(181, 53, 44, 0.4);
+    border-radius: 4px;
+  }
+  .hero-carousel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(181, 53, 44, 0.6);
+  }
+  /* Ajustar contenedor interno del carrusel en desktop */
+  .hero-carousel > div {
+    gap: 1rem;
+  }
+  /* Ajustar slides del carrusel en desktop: mostrar 2 slides visibles */
+  .hero-slide {
+    min-width: calc(50% - 0.5rem) !important;
+    max-width: calc(50% - 0.5rem) !important;
+    flex: 0 0 calc(50% - 0.5rem) !important;
+  }
+  /* Footer fijo adaptado */
+  .fixed-bottom-desktop {
+    position: relative !important;
+    margin-top: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08), 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .fixed-bottom-desktop .space-y-3 > * + * {
+    margin-top: 0.75rem;
+  }
+  /* Asegurar que el footer tenga el mismo ancho que el contenido del main */
+  .fixed-bottom-desktop {
+    width: calc(100% - 2rem);
+  }
+  /* El elemento Total debe tener exactamente el mismo ancho que los items del carrito */
+  .fixed-bottom-desktop .lg\\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  /* Top bar adaptado */
+  .fixed-top-desktop {
+    position: sticky !important;
+    top: 0;
+    z-index: 50;
+  }
+  /* Ajustar espaciado en formularios */
+  .form-section {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  /* Mejorar sombras en desktop */
+  .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  /* Ajustar padding en desktop */
+  .page {
+    padding-bottom: 0 !important;
+  }
+  
+  /* ========== MEJORAS PARA PANTALLAS DE ADMINISTRADOR EN DESKTOP ========== */
+  
+  /* Contenedor principal del admin */
+  #page-admin {
+    min-height: 100vh;
+  }
+  
+  #page-admin > div {
+    min-height: 100vh;
+  }
+  
+  /* Header del admin mejorado */
+  #page-admin header {
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Tabs del admin mejorados */
+  #page-admin .flex.gap-2.lg\\:gap-3 {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark #page-admin .flex.gap-2.lg\\:gap-3 {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Grid de inventario mejorado para desktop */
+  #adminInventoryList {
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)) !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+  }
+  
+  /* Items de inventario con mejor espaciado */
+  #adminInventoryList > div {
+    padding: 1.25rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  #adminInventoryList > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Grid de pedidos mejorado para desktop */
+  #adminOrdersList {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
+    gap: 1.5rem !important;
+    padding: 2rem !important;
+  }
+  
+  /* Cards de pedidos con mejor diseño */
+  #adminOrdersList > div {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  #adminOrdersList > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Filtros de categoría en inventario */
+  #page-admin .flex.gap-2.lg\\:gap-3.overflow-x-auto {
+    padding: 1.5rem 2rem 1rem 2rem;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  
+  /* Barra de búsqueda de pedidos mejorada */
+  #page-admin label.flex.flex-col.w-full.lg\\:max-w-md {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  /* Filtros de estado de pedidos */
+  #page-admin .flex.gap-2.lg\\:gap-3.px-4.lg\\:px-6 {
+    padding: 1rem 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+  }
+  
+  /* Sección header de inventario/pedidos */
+  #page-admin .flex.items-center.justify-between.px-4.lg\\:px-6 {
+    padding: 1.5rem 2rem;
+  }
+  
+  /* Modal de pedidos manuales mejorado */
+  #manualOrderModal > div {
+    max-width: 1200px !important;
+    margin: 2rem auto;
+    max-height: calc(100vh - 4rem);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #manualOrderModal header {
+    flex-shrink: 0;
+  }
+  
+  #manualOrderModal main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+  }
+  
+  /* Grid de productos en modal mejorado */
+  #manualOrderProductsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  
+  /* Footer del modal mejorado */
+  #manualOrderModal footer {
+    flex-shrink: 0;
+    padding: 1.5rem 2rem;
+  }
+  
+  /* Botón FAB mejorado */
+  #adminFAB {
+    bottom: 2rem;
+    right: 2rem;
+  }
+  
+  #adminFAB button {
+    box-shadow: 0 8px 24px rgba(181, 53, 44, 0.3);
+  }
+  
+  #adminFAB button:hover {
+    box-shadow: 0 12px 32px rgba(181, 53, 44, 0.4);
+    transform: scale(1.05);
+  }
+  
+  /* Mejorar espaciado general del contenido admin */
+  #page-admin main {
+    padding-bottom: 2rem;
+  }
+  
+  /* Modales de detalles mejorados */
+  .fixed.inset-0.bg-black\\/50.z-50 > div {
+    max-width: 600px;
+    max-height: 90vh;
+  }
+  
+  /* Scrollbar personalizado para modales */
+  #manualOrderModal main::-webkit-scrollbar,
+  .fixed.inset-0.bg-black\\/50.z-50 > div::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #manualOrderModal main::-webkit-scrollbar-track,
+  .fixed.inset-0.bg-black\\/50.z-50 > div::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+  
+  #manualOrderModal main::-webkit-scrollbar-thumb,
+  .fixed.inset-0.bg-black\\/50.z-50 > div::-webkit-scrollbar-thumb {
+    background-color: rgba(181, 53, 44, 0.3);
+    border-radius: 4px;
+  }
+  
+  #manualOrderModal main::-webkit-scrollbar-thumb:hover,
+  .fixed.inset-0.bg-black\\/50.z-50 > div::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(181, 53, 44, 0.5);
+  }
+  
+  /* Mejorar diseño de items de inventario en desktop */
+  #adminInventoryList > div .flex.items-center.gap-4 {
+    gap: 1.5rem;
+  }
+  
+  #adminInventoryList > div .size-16 {
+    width: 5rem;
+    height: 5rem;
+  }
+  
+  /* Mejorar diseño de cards de pedidos */
+  #adminOrdersList > div .p-4 {
+    padding: 1.5rem;
+  }
+  
+  /* Botones de acción mejorados */
+  #adminOrdersList button,
+  #adminInventoryList button {
+    transition: all 0.2s ease;
+  }
+  
+  #adminOrdersList button:hover,
+  #adminInventoryList button:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Toggle switches mejorados */
+  .toggle-label {
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Mejorar contraste y legibilidad */
+  #page-admin .text-gray-500 {
+    color: rgb(107, 114, 128);
+  }
+  
+  .dark #page-admin .text-gray-500 {
+    color: rgb(156, 163, 175);
+  }
+  
+  /* Mejorar diseño de productos en modal manual */
+  #manualOrderProductsList > div {
+    transition: all 0.2s ease;
+  }
+  
+  #manualOrderProductsList > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mejorar diseño de formularios en modal */
+  #manualOrderModal input,
+  #manualOrderModal textarea {
+    transition: all 0.2s ease;
+  }
+  
+  #manualOrderModal input:focus,
+  #manualOrderModal textarea:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(181, 53, 44, 0.15);
+  }
+  
+  /* Mejorar diseño de botones en admin */
+  #page-admin button {
+    transition: all 0.2s ease;
+  }
+  
+  #page-admin button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Mejorar diseño de tabs */
+  #page-admin .flex.gap-2.lg\\:gap-3 button {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  #page-admin .flex.gap-2.lg\\:gap-3 button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(181, 53, 44, 0.2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  #page-admin .flex.gap-2.lg\\:gap-3 button.bg-primary::after {
+    transform: scaleX(1);
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Mejorar diseño de filtros */
+  #page-admin .flex.gap-2.lg\\:gap-3.overflow-x-auto > div,
+  #page-admin .flex.gap-2.lg\\:gap-3.px-4.lg\\:px-6 button {
+    transition: all 0.2s ease;
+  }
+  
+  #page-admin .flex.gap-2.lg\\:gap-3.overflow-x-auto > div:hover,
+  #page-admin .flex.gap-2.lg\\:gap-3.px-4.lg\\:px-6 button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mejorar diseño de header del admin */
+  #page-admin header {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Mejorar diseño de modales de detalles */
+  .fixed.inset-0.bg-black\\/50.z-50 > div {
+    animation: modalFadeIn 0.3s ease-out;
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  /* Mejorar scrollbar en desktop para admin */
+  #page-admin main::-webkit-scrollbar,
+  #manualOrderModal main::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  #page-admin main::-webkit-scrollbar-track,
+  #manualOrderModal main::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+  }
+  
+  #page-admin main::-webkit-scrollbar-thumb,
+  #manualOrderModal main::-webkit-scrollbar-thumb {
+    background-color: rgba(181, 53, 44, 0.3);
+    border-radius: 5px;
+  }
+  
+  #page-admin main::-webkit-scrollbar-thumb:hover,
+  #manualOrderModal main::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(181, 53, 44, 0.5);
+  }
+  
+  /* Ocultar barra de navegación inferior en desktop */
+  @media (min-width: 1024px) {
+    #page-admin nav.fixed.bottom-0 {
+      display: none;
+    }
+  }
+  
+  /* ========== ESTILOS PARA PÁGINA DE CREAR PEDIDO MANUAL ========== */
+  
+  /* Contenedor principal */
+  #page-admin-manual-order {
+    min-height: 100vh;
+  }
+  
+  #page-admin-manual-order > div {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header mejorado */
+  #page-admin-manual-order header {
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Main content con mejor scroll */
+  #page-admin-manual-order main {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+  }
+  
+  /* Secciones con mejor espaciado */
+  #page-admin-manual-order section {
+    margin-bottom: 2rem;
+  }
+  
+  /* Cards de formulario mejoradas */
+  #page-admin-manual-order .bg-gray-50 {
+    transition: box-shadow 0.2s ease;
+  }
+  
+  #page-admin-manual-order .bg-gray-50:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Grid de productos mejorado */
+  #page-admin-manual-order #manualOrderProductsList {
+    gap: 1.5rem;
+  }
+  
+  /* Cards de productos mejoradas */
+  #page-admin-manual-order #manualOrderProductsList > div {
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  #page-admin-manual-order #manualOrderProductsList > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgba(181, 53, 44, 0.2);
+  }
+  
+  /* Footer sticky mejorado */
+  #page-admin-manual-order footer {
+    background: rgba(253, 253, 252, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark #page-admin-manual-order footer {
+    background: rgba(26, 26, 26, 0.95);
+  }
+  
+  /* Inputs mejorados */
+  #page-admin-manual-order input:focus,
+  #page-admin-manual-order textarea:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(181, 53, 44, 0.15);
+  }
+  
+  /* Botones mejorados */
+  #page-admin-manual-order button {
+    transition: all 0.2s ease;
+  }
+  
+  #page-admin-manual-order button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Scrollbar personalizado */
+  #page-admin-manual-order main::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  #page-admin-manual-order main::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+  }
+  
+  #page-admin-manual-order main::-webkit-scrollbar-thumb {
+    background-color: rgba(181, 53, 44, 0.3);
+    border-radius: 5px;
+  }
+  
+  #page-admin-manual-order main::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(181, 53, 44, 0.5);
+  }
+  
+  /* Layout de dos columnas en desktop para formulario */
+  @media (min-width: 1280px) {
+    #page-admin-manual-order .px-4.lg\\:px-8 {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* Contenedor principal con layout de dos columnas */
+    #page-admin-manual-order main {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 2rem;
+      align-items: start;
+      padding: 2rem;
+    }
+    
+    /* Primera columna: formulario y productos */
+    #page-admin-manual-order main > section:first-of-type,
+    #page-admin-manual-order main > section:nth-of-type(2) {
+      grid-column: 1;
+    }
+    
+    /* Segunda columna: resumen sticky */
+    #page-admin-manual-order #manualOrderSummarySection {
+      grid-column: 2;
+      position: sticky;
+      top: 100px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      align-self: start;
+    }
+    
+    /* Asegurar que el resumen siempre esté visible */
+    #page-admin-manual-order #manualOrderSummarySection[style*="display: none"] {
+      display: block !important;
+      opacity: 0.5;
+    }
+  }
+}
+
+/* Estilos para página de confirmación */
+.confetti-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Animación sutil para el ícono de éxito */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+/* Mejoras para página de confirmación en desktop */
+@media (min-width: 1024px) {
+  #page-confirmation {
+    background: linear-gradient(to bottom, #fdfdfc, #f8f7f6);
+  }
+  
+  .dark #page-confirmation {
+    background: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
+  }
+  
+  #page-confirmation > div > div {
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 1.5rem;
+  }
+  
+  /* Confetti dots más grandes en desktop */
+  #page-confirmation .confetti-dot {
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Efectos hover mejorados */
+  #page-confirmation button {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  #page-confirmation button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  #page-confirmation button:hover::before {
+    left: 100%;
+  }
+  
+  /* Tarjeta de resumen con mejor sombra en desktop */
+  #page-confirmation .bg-white,
+  #page-confirmation .dark\\:bg-\\[\\#252525\\] {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  #page-confirmation .bg-white:hover,
+  #page-confirmation .dark\\:bg-\\[\\#252525\\]:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Mejoras responsivas para tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #page-confirmation > div > div {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mobile-container {
+    max-width: 700px !important;
+    margin: 1.5rem auto;
+  }
+  .mobile-container-sm {
+    max-width: 650px !important;
+    margin: 1.5rem auto;
+  }
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .form-section {
+    max-width: 550px;
+    margin: 0 auto;
+  }
+}
