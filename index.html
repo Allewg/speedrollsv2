@@ -56,6 +56,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
   import { getDatabase, ref, set, get, onValue, off, remove } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
   // Your web app's Firebase configuration
   const firebaseConfig = {
@@ -73,6 +74,7 @@
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const database = getDatabase(app);
+  const auth = getAuth(app);
 
   // Hacer disponible globalmente
   window.firebaseDB = database;
@@ -82,6 +84,7 @@
   window.firebaseOnValue = onValue;
   window.firebaseOff = off;
   window.firebaseRemove = remove;
+  window.firebaseAuth = auth;
   window.firebaseReady = true;
 </script>
 </head>
@@ -502,19 +505,23 @@ Salsas Seleccionadas
 <div class="text-center mb-8">
 <h1 class="text-[#171212] dark:text-white text-3xl lg:text-4xl font-extrabold leading-tight mb-4">Panel de Administración</h1>
 <p class="text-[#836967] dark:text-zinc-400 text-base lg:text-lg leading-relaxed mb-6">
-Ingresa el código de acceso para continuar
+Ingresa tus credenciales para continuar
 </p>
 <!-- Login Card -->
 <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-zinc-800 mb-8">
 <div class="space-y-4">
 <div class="flex flex-col w-full">
-<label class="text-[#171212] dark:text-gray-300 text-sm font-medium leading-normal pb-1.5 px-1 mb-2">Código de Acceso</label>
-<input id="adminCode" type="password" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-[15px] text-base font-normal text-center tracking-widest" placeholder="••••••" maxlength="6" autocomplete="off"/>
-<p id="adminCodeError" class="text-xs text-red-500 mt-2 hidden">Código incorrecto. Intenta nuevamente.</p>
+<label class="text-[#171212] dark:text-gray-300 text-sm font-medium leading-normal pb-1.5 px-1 mb-2">Correo Electrónico</label>
+<input id="adminEmail" type="email" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-[15px] text-base font-normal" placeholder="admin@speedrolls.com" autocomplete="email" required/>
 </div>
-<button onclick="handleAdminLogin()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-base">
+<div class="flex flex-col w-full">
+<label class="text-[#171212] dark:text-gray-300 text-sm font-medium leading-normal pb-1.5 px-1 mb-2">Contraseña</label>
+<input id="adminPassword" type="password" class="form-input flex w-full rounded-lg text-[#171212] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-background-dark h-14 placeholder:text-gray-400 dark:placeholder:text-gray-500 p-[15px] text-base font-normal" placeholder="••••••••" autocomplete="current-password" required onkeypress="if(event.key === 'Enter') handleAdminLogin()"/>
+<p id="adminLoginError" class="text-xs text-red-500 mt-2 hidden"></p>
+</div>
+<button id="adminLoginButton" onclick="handleAdminLogin()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-base disabled:opacity-50 disabled:cursor-not-allowed">
 <span class="material-symbols-outlined">login</span>
-<span>Acceder</span>
+<span>Iniciar Sesión</span>
 </button>
 </div>
 </div>
@@ -544,7 +551,7 @@ Ingresa el código de acceso para continuar
 </div>
 </div>
 <div class="flex items-center gap-2 lg:gap-3">
-<button onclick="router.navigate('home')" class="relative p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Salir">
+<button onclick="handleAdminLogout()" class="relative p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Cerrar Sesión">
 <span class="material-symbols-outlined lg:!text-xl">logout</span>
 </button>
 <button class="relative p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
@@ -1168,6 +1175,7 @@ Volver al inicio
 <!-- JavaScript Modularizado -->
 <!-- config.js eliminado - Firebase ya se inicializa como módulo arriba -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/router.js"></script>
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>

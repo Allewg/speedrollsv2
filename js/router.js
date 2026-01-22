@@ -3,6 +3,16 @@ const router = {
   currentPage: 'home',
   
   init() {
+    // Configurar listener de autenticación si está disponible
+    if (typeof window.setupAuthStateListener === 'function') {
+      window.setupAuthStateListener((access) => {
+        // Si el usuario perdió acceso mientras está en el panel admin, redirigir
+        if (this.currentPage === 'admin' && (!access.authenticated || !access.authorized)) {
+          this.navigate('admin-login');
+        }
+      });
+    }
+    
     // Navegar a la página inicial basada en el hash o por defecto 'home'
     const hash = window.location.hash.slice(1) || 'home';
     this.navigate(hash);
@@ -22,12 +32,31 @@ const router = {
     
     // Verificar autenticación para el panel de admin
     if (pageName === 'admin' || pageName === 'admin-validate') {
-      const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
-      if (!isAdminAuthenticated && pageName === 'admin') {
-        // Redirigir al login de admin solo para el panel principal
-        pageName = 'admin-login';
-      }
       // admin-validate puede ser accesible sin login (desde enlace de WhatsApp)
+      if (pageName === 'admin') {
+        // Verificar autenticación con Firebase Auth de forma síncrona primero
+        const isAuth = typeof window.isAdminAuthenticated === 'function' ? window.isAdminAuthenticated() : false;
+        if (!isAuth) {
+          pageName = 'admin-login';
+        } else {
+          // Verificar también la whitelist de forma asíncrona
+          if (typeof window.verifyAdminAccess === 'function') {
+            window.verifyAdminAccess().then((access) => {
+              if (!access.authenticated || !access.authorized) {
+                // Redirigir al login si no está autorizado
+                if (this.currentPage === 'admin') {
+                  this.navigate('admin-login');
+                }
+              }
+            }).catch((error) => {
+              console.error('Error al verificar acceso:', error);
+              if (this.currentPage === 'admin') {
+                this.navigate('admin-login');
+              }
+            });
+          }
+        }
+      }
     }
     
     // Ocultar todas las páginas

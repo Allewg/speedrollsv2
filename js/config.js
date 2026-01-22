@@ -5,6 +5,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 import { getDatabase, ref, set, get, onValue, off } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,6 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 // Hacer disponible globalmente
 window.firebaseDB = database;
@@ -30,10 +32,11 @@ window.firebaseSet = set;
 window.firebaseGet = get;
 window.firebaseOnValue = onValue;
 window.firebaseOff = off;
+window.firebaseAuth = auth;
 window.firebaseReady = true;
 
 // Constantes globales
-const ADMIN_CODE = '123456'; // Código de acceso (cambiar por el código real)
+// ADMIN_CODE eliminado - ahora se usa Firebase Auth
 
 // Variables globales del estado de la aplicación
 // Nota: Estas variables se actualizarán desde products.js
@@ -70,7 +73,6 @@ window.currentCategoryFilter = currentCategoryFilter;
 window.selectedSauces = selectedSauces;
 window.selectedExtras = selectedExtras;
 window.baseProductPrice = baseProductPrice;
-window.ADMIN_CODE = ADMIN_CODE;
 window.categoryOrder = categoryOrder;
 window.processingButtons = processingButtons;
 window.isAddingToCart = isAddingToCart;

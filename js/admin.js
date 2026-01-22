@@ -1,6 +1,5 @@
 // ========== CONSTANTES Y VARIABLES DE ADMINISTRACIÓN ==========
-
-const ADMIN_CODE = '123456'; // Código de acceso (cambiar por el código real)
+// ADMIN_CODE eliminado - ahora se usa Firebase Auth
 
 // ========== FUNCIONES DE FIREBASE PARA STOCK ==========
 
@@ -143,39 +142,88 @@ ${isChefChoice ? '<span class="text-yellow-600 dark:text-yellow-400 text-xs font
 }
 
 // Función para manejar el login del administrador
-function handleAdminLogin() {
-  const codeInput = document.getElementById('adminCode');
-  const errorMsg = document.getElementById('adminCodeError');
+async function handleAdminLogin() {
+  const emailInput = document.getElementById('adminEmail');
+  const passwordInput = document.getElementById('adminPassword');
+  const errorMsg = document.getElementById('adminLoginError');
+  const loginButton = document.getElementById('adminLoginButton');
   
-  if (!codeInput) return;
+  if (!emailInput || !passwordInput) return;
   
-  const enteredCode = codeInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
   
-  if (enteredCode === ADMIN_CODE) {
-    // Código correcto - establecer sesión
-    sessionStorage.setItem('adminAuthenticated', 'true');
-    
-    // Limpiar error si existe
+  // Validación básica
+  if (!email || !password) {
     if (errorMsg) {
-      errorMsg.classList.add('hidden');
+      errorMsg.textContent = 'Por favor, completa todos los campos';
+      errorMsg.classList.remove('hidden');
     }
+    return;
+  }
+  
+  // Validar formato de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    if (errorMsg) {
+      errorMsg.textContent = 'Por favor, ingresa un correo electrónico válido';
+      errorMsg.classList.remove('hidden');
+    }
+    return;
+  }
+  
+  // Deshabilitar botón durante el proceso
+  if (loginButton) {
+    loginButton.disabled = true;
+    loginButton.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span><span>Iniciando sesión...</span>';
+  }
+  
+  // Ocultar error previo
+  if (errorMsg) {
+    errorMsg.classList.add('hidden');
+  }
+  
+  try {
+    // Intentar login con Firebase Auth
+    await window.loginAdmin(email, password);
     
-    // Limpiar campo
-    codeInput.value = '';
+    // Login exitoso - limpiar campos
+    emailInput.value = '';
+    passwordInput.value = '';
     
     // Navegar al panel de admin
     router.navigate('admin');
-  } else {
-    // Código incorrecto - mostrar error
+  } catch (error) {
+    // Mostrar error
     if (errorMsg) {
+      errorMsg.textContent = error.message || 'Error al iniciar sesión. Intenta nuevamente.';
       errorMsg.classList.remove('hidden');
     }
     
-    // Limpiar campo y enfocar
-    codeInput.value = '';
+    // Limpiar contraseña y enfocar
+    passwordInput.value = '';
     setTimeout(() => {
-      codeInput.focus();
+      passwordInput.focus();
     }, 100);
+  } finally {
+    // Rehabilitar botón
+    if (loginButton) {
+      loginButton.disabled = false;
+      loginButton.innerHTML = '<span class="material-symbols-outlined">login</span><span>Iniciar Sesión</span>';
+    }
+  }
+}
+
+// Función para manejar el logout del administrador
+async function handleAdminLogout() {
+  try {
+    await window.logoutAdmin();
+    // Redirigir al login
+    router.navigate('admin-login');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+    // Aún así redirigir al login
+    router.navigate('admin-login');
   }
 }
 
