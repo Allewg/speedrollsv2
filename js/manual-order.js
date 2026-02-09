@@ -188,7 +188,7 @@ function increaseManualOrderQuantity(productId) {
   const currentQuantity = manualOrderSelectedItems[productId]?.quantity || 0;
   
   if (currentQuantity >= 20) {
-    alert('No puedes agregar más de 20 unidades del mismo producto');
+    notifyWarning('No puedes agregar más de 20 unidades del mismo producto');
     return;
   }
   
@@ -291,24 +291,24 @@ async function createManualOrder() {
   const address = document.getElementById('manualOrderAddress')?.value.trim();
   
   if (!fullName || fullName.length < 3) {
-    alert('Por favor, ingresa un nombre válido (mínimo 3 caracteres)');
+    notifyWarning('Por favor, ingresa un nombre válido (mínimo 3 caracteres)');
     return;
   }
   
   if (!phone || !/^\+569[0-9]{8}$/.test(phone)) {
-    alert('Por favor, ingresa un teléfono válido en formato +56912345678');
+    notifyWarning('Por favor, ingresa un teléfono válido en formato +56912345678');
     return;
   }
   
   if (isDelivery && (!address || address.length < 10)) {
-    alert('Por favor, ingresa una dirección completa (mínimo 10 caracteres)');
+    notifyWarning('Por favor, ingresa una dirección completa (mínimo 10 caracteres)');
     return;
   }
   
   const selectedItems = Object.values(manualOrderSelectedItems).filter(item => item.quantity > 0);
   
   if (selectedItems.length === 0) {
-    alert('Por favor, selecciona al menos un producto');
+    notifyWarning('Por favor, selecciona al menos un producto');
     return;
   }
   
@@ -353,7 +353,7 @@ async function createManualOrder() {
     // Crear pedido directamente como confirmado (admin ya lo validó)
     const orderId = await createManualOrderInFirebase(orderData);
     
-    alert(`Pedido creado exitosamente: ${orderId}`);
+    notifySuccess(`Pedido creado exitosamente: ${orderId}`);
     
     // Navegar de vuelta al admin y recargar lista
     router.navigate('admin');
@@ -372,7 +372,7 @@ async function createManualOrder() {
     
   } catch (error) {
     console.error('Error al crear pedido manual:', error);
-    alert('Error al crear el pedido. Por favor intenta nuevamente.');
+    notifyError('Error al crear el pedido. Por favor intenta nuevamente.');
   } finally {
     if (createButton) {
       createButton.disabled = false;

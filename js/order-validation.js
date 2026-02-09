@@ -179,7 +179,13 @@ function renderValidationForm(order) {
 
 // Confirmar validación
 async function confirmValidation(orderId) {
-  if (!confirm('¿Estás seguro de validar este pedido?')) return;
+  const confirmed = await showConfirm('¿Estás seguro de validar este pedido?', {
+    title: 'Validar Pedido',
+    confirmText: 'Validar',
+    type: 'info',
+    icon: 'task_alt'
+  });
+  if (!confirmed) return;
   
   const content = document.getElementById('validateOrderContent');
   if (!content) return;

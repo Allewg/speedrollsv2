@@ -6,6 +6,43 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+/* ========== SISTEMA DE NOTIFICACIONES ========== */
+@keyframes toastEnter {
+  from { opacity: 0; transform: translateX(100%) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastExit {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(100%) scale(0.95); }
+}
+@keyframes toastProgress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+@keyframes confirmOverlayEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes confirmOverlayExit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes confirmDialogEnter {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes confirmDialogExit {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.9) translateY(10px); }
+}
+.toast-enter { animation: toastEnter 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+.toast-exit { animation: toastExit 0.25s ease-in forwards; }
+.confirm-overlay-enter { animation: confirmOverlayEnter 0.2s ease-out forwards; }
+.confirm-overlay-exit { animation: confirmOverlayExit 0.2s ease-in forwards; }
+.confirm-dialog-enter { animation: confirmDialogEnter 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+.confirm-dialog-exit { animation: confirmDialogExit 0.2s ease-in forwards; }
+</style>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -567,16 +604,13 @@ Ingresa tus credenciales para continuar
 </div>
 </div>
 <main class="pb-24 lg:pb-8">
-<!-- Tabs: Inventario, Pedidos, Repartidores y Ventas -->
+<!-- Tabs: Inventario, Pedidos y Ventas -->
 <div class="flex gap-2 lg:gap-3 p-4 lg:p-6 border-b border-gray-100 dark:border-gray-800 overflow-x-auto no-scrollbar">
 <button onclick="showAdminTab('inventory')" id="adminTabInventory" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-primary text-white transition-all hover:brightness-110 shrink-0">
 Inventario
 </button>
 <button onclick="showAdminTab('orders')" id="adminTabOrders" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
 Pedidos
-</button>
-<button onclick="showAdminTab('delivery')" id="adminTabDelivery" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
-Repartidores
 </button>
 <button onclick="showAdminTab('sales')" id="adminTabSales" class="flex-1 lg:flex-none lg:px-6 py-2 lg:py-3 px-4 rounded-lg font-semibold text-sm lg:text-base bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-300 dark:hover:bg-zinc-700 shrink-0">
 Ventas
@@ -611,21 +645,6 @@ Ventas
 </div>
 </div>
 
-<!-- Tab: Repartidores -->
-<div id="adminTabDeliveryContent" class="admin-tab-content hidden">
-<!-- Section Header -->
-<div class="flex items-center justify-between px-4 lg:px-6 pt-4 lg:pt-6 pb-2">
-<h3 class="text-[#181112] dark:text-white text-lg lg:text-2xl font-bold font-display tracking-tight">Gestión de Repartidores</h3>
-<button onclick="showAddDeliveryPersonModal()" class="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">add</span>
-Agregar
-</button>
-</div>
-<!-- Delivery Persons List -->
-<div id="adminDeliveryPersonsList" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 p-4 lg:p-6">
-<!-- Repartidores se generarán dinámicamente -->
-</div>
-</div>
 
 <!-- Tab: Pedidos -->
 <div id="adminTabOrdersContent" class="admin-tab-content hidden">
@@ -660,13 +679,6 @@ Agregar
 <button onclick="filterOrders('cancelled')" data-filter="cancelled" class="order-filter-btn flex h-9 lg:h-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-5 lg:px-6 transition-colors cursor-pointer hover:border-primary">
 <p class="text-gray-600 dark:text-gray-300 text-xs lg:text-sm font-semibold font-display">Cancelados</p>
 </button>
-</div>
-<!-- Delivery Person Filter (se cargará dinámicamente) -->
-<div id="deliveryPersonFiltersContainer" class="px-4 lg:px-6 pb-2 hidden">
-<p class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">Filtrar por Repartidor:</p>
-<div class="flex gap-2 overflow-x-auto no-scrollbar" id="deliveryPersonFilters">
-<!-- Filtros de repartidores se generarán dinámicamente -->
-</div>
 </div>
 <!-- Section Header -->
 <div class="flex items-center justify-between px-4 lg:px-6 pt-2 lg:pt-4">
@@ -1175,6 +1187,7 @@ Volver al inicio
 <!-- JavaScript Modularizado -->
 <!-- config.js eliminado - Firebase ya se inicializa como módulo arriba -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/notifications.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/router.js"></script>
 <script src="js/products.js"></script>
@@ -1186,7 +1199,6 @@ Volver al inicio
 <script src="js/orders.js"></script>
 <script src="js/order-tracking.js"></script>
 <script src="js/admin-orders.js"></script>
-<script src="js/admin-delivery.js"></script>
 <script src="js/order-validation.js"></script>
 <script src="js/manual-order.js"></script>
 <script src="js/admin-sales.js"></script>

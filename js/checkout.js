@@ -403,65 +403,65 @@ async function handlePayment() {
   
   // Validación de nombre
   if (!checkoutData.fullName || checkoutData.fullName.trim() === '') {
-    alert('Por favor, ingresa tu nombre completo');
+    notifyWarning('Por favor, ingresa tu nombre completo');
     return;
   }
   
   // Validación de teléfono obligatorio
   if (!checkoutData.phone || checkoutData.phone.trim() === '') {
-    alert('Por favor, ingresa tu número de teléfono');
+    notifyWarning('Por favor, ingresa tu número de teléfono');
     return;
   }
   
   // Validar formato de teléfono chileno
   const phoneRegex = /^\+569[0-9]{8}$/;
   if (!phoneRegex.test(checkoutData.phone.trim())) {
-    alert('Por favor, ingresa un número de teléfono válido en formato +56912345678');
+    notifyWarning('Por favor, ingresa un número de teléfono válido en formato +56912345678');
     return;
   }
   
   // Validación de carrito
   if (cartItems.length === 0) {
-    alert('Tu carrito está vacío');
+    notifyWarning('Tu carrito está vacío');
     return;
   }
   
   // Validación de dirección si es delivery
   if (checkoutData.deliveryType === 'despacho') {
     if (!checkoutData.deliveryAddress || checkoutData.deliveryAddress.trim() === '') {
-      alert('Por favor, ingresa la dirección de despacho');
+      notifyWarning('Por favor, ingresa la dirección de despacho');
       return;
     }
     if (checkoutData.deliveryAddress.trim().length < 10) {
-      alert('Por favor, ingresa una dirección más completa (mínimo 10 caracteres)');
+      notifyWarning('Por favor, ingresa una dirección más completa (mínimo 10 caracteres)');
       return;
     }
   }
   
   // Validación de observaciones
   if (checkoutData.observations && checkoutData.observations.length > 500) {
-    alert('Las observaciones no pueden exceder 500 caracteres');
+    notifyWarning('Las observaciones no pueden exceder 500 caracteres');
     return;
   }
   
   // Validar límites de cantidad
   const quantityValidation = validateOrderQuantities(cartItems);
   if (!quantityValidation.valid) {
-    alert(quantityValidation.reason);
+    notifyWarning(quantityValidation.reason);
     return;
   }
   
   // Validar patrones sospechosos
   const patternValidation = validateOrderPattern(checkoutData);
   if (!patternValidation.valid) {
-    alert(patternValidation.reason);
+    notifyError(patternValidation.reason);
     return;
   }
   
   // Verificar rate limiting mejorado
   const rateLimitCheck = canCreateOrder();
   if (!rateLimitCheck.allowed) {
-    alert(rateLimitCheck.reason);
+    notifyWarning(rateLimitCheck.reason);
     return;
   }
   
@@ -482,7 +482,7 @@ async function handlePayment() {
   // Validar precios antes de crear el pedido
   const priceValidation = await validateOrderPrices(orderDataForValidation, cartItems);
   if (!priceValidation.valid) {
-    alert(priceValidation.reason);
+    notifyError(priceValidation.reason);
     return;
   }
   
@@ -585,7 +585,7 @@ async function handlePayment() {
     
   } catch (error) {
     console.error('Error al procesar pedido:', error);
-    alert('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
+    notifyError('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
   } finally {
     // Restaurar botón
     if (confirmButton) {

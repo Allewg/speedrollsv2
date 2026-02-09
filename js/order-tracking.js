@@ -47,7 +47,7 @@ function searchOrder() {
   
   const orderId = input.value.trim().toUpperCase();
   if (!orderId) {
-    alert('Por favor ingresa un número de pedido');
+    notifyWarning('Por favor ingresa un número de pedido');
     return;
   }
   
@@ -285,7 +285,7 @@ function shareTrackingLink() {
 function copyToClipboard(text) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Enlace copiado al portapapeles');
+      notifySuccess('Enlace copiado al portapapeles');
     });
   } else {
     // Fallback para navegadores antiguos
@@ -295,7 +295,7 @@ function copyToClipboard(text) {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
-    alert('Enlace copiado al portapapeles');
+    notifySuccess('Enlace copiado al portapapeles');
   }
 }
 

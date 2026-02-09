@@ -7,9 +7,6 @@ let allOrders = []; // Almacenar todos los pedidos para contar
 function initAdminOrders() {
   loadAllOrders();
   
-  // Cargar filtros de repartidores
-  loadDeliveryPersonFilters();
-  
   // Mostrar FAB si estamos en tab de pedidos
   const ordersTab = document.getElementById('adminTabOrdersContent');
   const fab = document.getElementById('adminFAB');
@@ -75,15 +72,7 @@ function renderOrdersList(orders) {
     filteredOrders = filteredOrders.filter(o => 
       o.id.toLowerCase().includes(searchTerm) ||
       (o.cliente.nombre && o.cliente.nombre.toLowerCase().includes(searchTerm)) ||
-      (o.cliente.telefono && o.cliente.telefono.includes(searchTerm)) ||
-      (o.deliveryPerson && o.deliveryPerson.name && o.deliveryPerson.name.toLowerCase().includes(searchTerm))
-    );
-  }
-  
-  // Aplicar filtro por repartidor si existe
-  if (window.currentDeliveryPersonFilter) {
-    filteredOrders = filteredOrders.filter(o => 
-      o.deliveryPerson && o.deliveryPerson.id === window.currentDeliveryPersonFilter
+      (o.cliente.telefono && o.cliente.telefono.includes(searchTerm))
     );
   }
   
@@ -157,6 +146,9 @@ function renderOrdersList(orders) {
         <button onclick="viewOrderDetails('${order.id}')" class="flex-1 h-10 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold font-display text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors">
           Ver Detalles
         </button>
+        <button onclick="showEditOrderModal('${order.id}')" class="h-10 w-10 rounded-lg border border-primary/30 bg-primary/5 text-primary flex items-center justify-center hover:bg-primary/10 transition-colors" title="Editar pedido">
+          <span class="material-symbols-outlined text-sm">edit</span>
+        </button>
         <button onclick="updateOrderStatusFromList('${order.id}', 'entregado', true)" class="flex-1 h-10 rounded-lg bg-primary text-white text-xs font-bold font-display hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
           Marcar Entregado
         </button>
@@ -168,6 +160,9 @@ function renderOrdersList(orders) {
       actionButtons = `
         <button onclick="viewOrderDetails('${order.id}')" class="flex-1 h-10 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold font-display text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors">
           Ver Detalles
+        </button>
+        <button onclick="showEditOrderModal('${order.id}')" class="h-10 w-10 rounded-lg border border-primary/30 bg-primary/5 text-primary flex items-center justify-center hover:bg-primary/10 transition-colors" title="Editar pedido">
+          <span class="material-symbols-outlined text-sm">edit</span>
         </button>
         <button onclick="manageOrderStatus('${order.id}')" class="flex-1 h-10 rounded-lg bg-primary text-white text-xs font-bold font-display hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
           Gestionar Estado
@@ -195,17 +190,6 @@ function renderOrdersList(orders) {
             <div class="flex-1">
               <p class="text-sm font-semibold dark:text-gray-200">${clienteNombre}</p>
               <p class="text-xs text-gray-500 dark:text-gray-400 leading-none mt-1">${timeStr} • ${itemsCount} ${itemsCount === 1 ? 'producto' : 'productos'} • $${totalFormatted}</p>
-              ${order.deliveryPerson ? `
-                <div class="mt-2 flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-xs text-primary">delivery_dining</span>
-                  <span class="text-xs font-medium text-primary">${order.deliveryPerson.name}</span>
-                </div>
-              ` : order.deliveryType === 'despacho' && order.status === 'en_camino' ? `
-                <div class="mt-2 flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-xs text-yellow-500">warning</span>
-                  <span class="text-xs font-medium text-yellow-600 dark:text-yellow-400">Sin repartidor asignado</span>
-                </div>
-              ` : ''}
             </div>
           </div>
           <div class="flex gap-2">
@@ -246,96 +230,13 @@ function filterOrdersBySearch(searchTerm) {
 async function manageOrderStatus(orderId) {
   const order = await getOrderById(orderId);
   if (!order) {
-    alert('Pedido no encontrado');
+    notifyError('Pedido no encontrado');
     return;
   }
   
   // Crear modal de gestión de estado
   const modal = document.createElement('div');
   modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
-  
-  // Debug: mostrar información del pedido en consola
-  console.log('🔍 Información del pedido:', {
-    id: order.id,
-    deliveryType: order.deliveryType,
-    status: order.status,
-    validado: order.validado,
-    cliente: order.cliente?.nombre || 'Sin nombre'
-  });
-  
-  // Si es despacho y está validado (confirmado o en_cocina), mostrar selector de repartidor
-  // El selector aparece cuando el pedido puede pasar a "en_camino"
-  const canGoToEnCamino = order.validado && 
-                          (order.status === 'confirmado' || order.status === 'en_cocina') &&
-                          order.status !== 'entregado' && 
-                          order.status !== 'cancelado';
-  const showDeliverySelector = order.deliveryType === 'despacho' && canGoToEnCamino;
-  
-  console.log('🔍 Condiciones para selector:', {
-    isDespacho: order.deliveryType === 'despacho',
-    isValidado: order.validado,
-    canGoToEnCamino: canGoToEnCamino,
-    showDeliverySelector: showDeliverySelector
-  });
-  let deliverySelectorHTML = '';
-  
-  if (showDeliverySelector) {
-    try {
-      // Verificar que la función esté disponible
-      if (typeof getAvailableDeliveryPersons !== 'function') {
-        console.error('getAvailableDeliveryPersons no está disponible. Verifica que admin-delivery.js esté cargado.');
-        deliverySelectorHTML = `
-          <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-            <p class="text-sm text-red-800 dark:text-red-300">❌ Error: Sistema de repartidores no disponible. Recarga la página.</p>
-          </div>
-        `;
-      } else {
-        const availablePersons = await getAvailableDeliveryPersons();
-        console.log('Repartidores disponibles:', availablePersons.length);
-        
-        if (availablePersons.length > 0) {
-          deliverySelectorHTML = `
-            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">🚴 Asignar Repartidor</label>
-              <select id="deliveryPersonSelect_${orderId}" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark h-12 px-4 text-sm focus:ring-2 focus:ring-primary/50">
-                <option value="">Seleccionar repartidor...</option>
-                ${availablePersons.map(p => `
-                  <option value="${p.id}" data-workload="${p.activeOrders || 0}">
-                    ${p.name} ${p.activeOrders > 0 ? `(${p.activeOrders} pedido${p.activeOrders > 1 ? 's' : ''})` : '(Disponible)'}
-                  </option>
-                `).join('')}
-              </select>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Selecciona un repartidor disponible antes de marcar como "En Camino"</p>
-            </div>
-          `;
-        } else {
-          deliverySelectorHTML = `
-            <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <p class="text-sm text-yellow-800 dark:text-yellow-300">⚠️ No hay repartidores disponibles. <a href="#" onclick="showAdminTab('delivery'); this.closest('.fixed').remove();" class="underline font-bold">Agrega repartidores</a> en la sección de gestión.</p>
-            </div>
-          `;
-        }
-      }
-    } catch (error) {
-      console.error('Error al cargar repartidores:', error);
-      deliverySelectorHTML = `
-        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-          <p class="text-sm text-red-800 dark:text-red-300">❌ Error al cargar repartidores: ${error.message}. Verifica la consola para más detalles.</p>
-        </div>
-      `;
-    }
-  } else {
-    // Debug: mostrar por qué no se muestra el selector
-    if (order.deliveryType !== 'despacho') {
-      console.log('Selector no mostrado: El pedido no es de tipo despacho');
-    } else if (!order.validado) {
-      console.log('Selector no mostrado: El pedido no está validado');
-    } else if (order.status === 'entregado' || order.status === 'cancelado') {
-      console.log('Selector no mostrado: El pedido está entregado o cancelado');
-    } else {
-      console.log('Selector no mostrado: Estado del pedido:', order.status);
-    }
-  }
   
   modal.innerHTML = `
     <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -345,8 +246,6 @@ async function manageOrderStatus(orderId) {
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      
-      ${deliverySelectorHTML}
       
       <div class="space-y-3">
         ${!order.validado ? `
@@ -360,7 +259,7 @@ async function manageOrderStatus(orderId) {
           </button>
         ` : ''}
         ${(order.status === 'en_cocina' || order.status === 'confirmado') && order.status !== 'entregado' && order.status !== 'cancelado' ? `
-          <button onclick="handleEnCaminoWithDelivery('${order.id}', this.closest('.fixed'))" class="w-full bg-status-dispatched hover:bg-status-dispatched/90 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+          <button onclick="updateOrderStatusFromList('${order.id}', 'en_camino', true); this.closest('.fixed').remove();" class="w-full bg-status-dispatched hover:bg-status-dispatched/90 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
             <span>Marcar como En Camino</span>
             ${order.deliveryType === 'despacho' ? '<span class="material-symbols-outlined text-sm">local_shipping</span>' : ''}
           </button>
@@ -371,7 +270,7 @@ async function manageOrderStatus(orderId) {
           </button>
         ` : ''}
         ${order.status !== 'cancelado' && order.status !== 'entregado' ? `
-          <button onclick="if(confirm('¿Cancelar este pedido?')) { updateOrderStatusFromList('${order.id}', 'cancelado', true); this.closest('.fixed').remove(); }" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+          <button onclick="cancelOrderWithConfirm('${order.id}', this.closest('.fixed'))" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
             Cancelar Pedido
           </button>
         ` : ''}
@@ -388,73 +287,22 @@ async function manageOrderStatus(orderId) {
   document.body.appendChild(modal);
 }
 
-// Manejar cambio a "En Camino" con asignación de repartidor
-async function handleEnCaminoWithDelivery(orderId, modalElement) {
-  const order = await getOrderById(orderId);
-  if (!order) {
-    if (modalElement) modalElement.remove();
-    return;
-  }
-  
-  // Si es despacho, verificar si hay repartidor seleccionado
-  if (order.deliveryType === 'despacho') {
-    // Buscar el select dentro del modal para asegurarnos de encontrarlo
-    let selectElement = null;
-    if (modalElement) {
-      selectElement = modalElement.querySelector(`#deliveryPersonSelect_${orderId}`);
-    }
-    
-    // Si no se encuentra en el modal, intentar buscarlo globalmente
-    if (!selectElement) {
-      selectElement = document.getElementById(`deliveryPersonSelect_${orderId}`);
-    }
-    
-    const selectedPersonId = selectElement?.value?.trim();
-    
-    console.log('🔍 Debug handleEnCaminoWithDelivery:', {
-      orderId: orderId,
-      deliveryType: order.deliveryType,
-      selectElement: selectElement,
-      selectedPersonId: selectedPersonId,
-      selectValue: selectElement?.value,
-      selectOptions: selectElement ? Array.from(selectElement.options).map(opt => ({ value: opt.value, text: opt.text })) : []
-    });
-    
-    if (!selectedPersonId || selectedPersonId === '' || selectedPersonId === null) {
-      alert('Por favor selecciona un repartidor antes de marcar como "En Camino"');
-      return; // No cerrar el modal si falta seleccionar
-    }
-    
-    try {
-      // Cerrar el modal antes de procesar
-      if (modalElement) modalElement.remove();
-      
-      // Asignar repartidor y cambiar estado
-      await assignDeliveryPerson(orderId, selectedPersonId);
-      await updateOrderStatus(orderId, 'en_camino', 'Pedido asignado a repartidor');
-      alert('Pedido marcado como "En Camino" y repartidor asignado');
-      loadAllOrders();
-    } catch (error) {
-      console.error('Error al asignar repartidor:', error);
-      alert('Error: ' + error.message);
-    }
-  } else {
-    // Si no es despacho, cerrar modal y cambiar estado
-    if (modalElement) modalElement.remove();
-    await updateOrderStatusFromList(orderId, 'en_camino', true);
-  }
-}
-
 // Validar pedido desde la lista
 async function validateOrderFromList(orderId) {
-  if (!confirm('¿Confirmar este pedido?')) return;
+  const confirmed = await showConfirm('¿Deseas confirmar este pedido?', {
+    title: 'Validar Pedido',
+    confirmText: 'Confirmar',
+    type: 'info',
+    icon: 'task_alt'
+  });
+  if (!confirmed) return;
   
   try {
     await validateOrder(orderId);
-    alert('Pedido validado exitosamente');
+    notifySuccess('Pedido validado exitosamente');
   } catch (error) {
     console.error('Error al validar pedido:', error);
-    alert('Error al validar el pedido');
+    notifyError('Error al validar el pedido');
   }
 }
 
@@ -467,62 +315,51 @@ async function updateOrderStatusFromList(orderId, newStatus, skipConfirm = false
     'cancelado': 'Cancelado'
   };
   
-  if (!skipConfirm && !confirm(`¿Cambiar estado a "${statusNames[newStatus] || newStatus}"?`)) return;
+  if (!skipConfirm) {
+    const confirmed = await showConfirm(`¿Cambiar estado a "${statusNames[newStatus] || newStatus}"?`, {
+      title: 'Cambiar Estado',
+      confirmText: 'Cambiar',
+      type: newStatus === 'cancelado' ? 'danger' : 'info'
+    });
+    if (!confirmed) return;
+  }
   
   try {
-    const order = await getOrderById(orderId);
-    
-    // Si cambia a "entregado" y tiene repartidor asignado, liberar repartidor
-    if (newStatus === 'entregado' && order.deliveryPerson) {
-      await unassignDeliveryPerson(orderId);
-    }
-    
     await updateOrderStatus(orderId, newStatus);
-    if (!skipConfirm) {
-      alert(`Estado actualizado a "${statusNames[newStatus] || newStatus}"`);
-    }
+    notifySuccess(`Estado actualizado a "${statusNames[newStatus] || newStatus}"`);
   } catch (error) {
     console.error('Error al actualizar estado:', error);
-    alert('Error al actualizar el estado');
-  }
-}
-
-// Filtrar pedidos por repartidor
-function filterOrdersByDeliveryPerson(personId) {
-  window.currentDeliveryPersonFilter = personId || null;
-  loadAllOrders();
-  
-  // Actualizar UI del filtro
-  const filterChips = document.querySelectorAll('.delivery-person-filter-chip');
-  filterChips.forEach(chip => {
-    chip.classList.remove('bg-primary', 'text-white');
-    chip.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-  });
-  
-  if (personId) {
-    const activeChip = document.querySelector(`[data-delivery-person="${personId}"]`);
-    if (activeChip) {
-      activeChip.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-      activeChip.classList.add('bg-primary', 'text-white');
-    }
+    notifyError('Error al actualizar el estado');
   }
 }
 
 // Eliminar pedido desde la lista
 async function deleteOrderFromList(orderId) {
   // Confirmación doble para evitar eliminaciones accidentales
-  if (!confirm('¿Estás seguro de eliminar este pedido?')) return;
+  const firstConfirm = await showConfirm('¿Estás seguro de eliminar este pedido?', {
+    title: 'Eliminar Pedido',
+    confirmText: 'Sí, eliminar',
+    type: 'danger',
+    icon: 'delete_forever'
+  });
+  if (!firstConfirm) return;
   
-  if (!confirm('Esta acción no se puede deshacer. ¿Continuar?')) return;
+  const secondConfirm = await showConfirm('Esta acción no se puede deshacer. ¿Continuar?', {
+    title: 'Confirmar Eliminación',
+    confirmText: 'Eliminar definitivamente',
+    type: 'danger',
+    icon: 'warning'
+  });
+  if (!secondConfirm) return;
   
   try {
     await deleteOrder(orderId);
     // Recargar la lista de pedidos
     loadAllOrders();
-    alert('Pedido eliminado exitosamente');
+    notifySuccess('Pedido eliminado exitosamente');
   } catch (error) {
     console.error('Error al eliminar pedido:', error);
-    alert('Error al eliminar el pedido');
+    notifyError('Error al eliminar el pedido');
   }
 }
 
@@ -530,7 +367,7 @@ async function deleteOrderFromList(orderId) {
 async function viewOrderDetails(orderId) {
   const order = await getOrderById(orderId);
   if (!order) {
-    alert('Pedido no encontrado');
+    notifyError('Pedido no encontrado');
     return;
   }
   
@@ -608,20 +445,26 @@ function showOrderDetailsModal(order) {
         </div>
       </div>
       
-      <div class="mt-6 flex gap-2">
+      <div class="mt-6 flex gap-2 flex-wrap">
         <button onclick="printOrder('${order.id}')" class="flex-1 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-[#171212] dark:text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
           <span class="material-symbols-outlined text-sm">print</span>
           Imprimir
         </button>
-        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-[#171212] dark:text-white font-bold py-3 rounded-lg transition-colors">
-          Cerrar
-        </button>
+        ${order.status !== 'cancelado' && order.status !== 'entregado' ? `
+          <button onclick="this.closest('.fixed').remove(); showEditOrderModal('${order.id}');" class="flex-1 bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-sm">edit</span>
+            Editar
+          </button>
+        ` : ''}
         ${!order.validado ? `
           <button onclick="validateOrderFromModal('${order.id}'); this.closest('.fixed').remove();" class="flex-1 bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-colors">
             Validar Pedido
           </button>
         ` : ''}
-        <button onclick="if(confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')) { deleteOrderFromList('${order.id}'); this.closest('.fixed').remove(); }" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center" title="Eliminar pedido">
+        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-[#171212] dark:text-white font-bold py-3 rounded-lg transition-colors">
+          Cerrar
+        </button>
+        <button onclick="deleteOrderFromDetails('${order.id}', this.closest('.fixed'))" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center" title="Eliminar pedido">
           <span class="material-symbols-outlined">delete</span>
         </button>
       </div>
@@ -631,15 +474,416 @@ function showOrderDetailsModal(order) {
   document.body.appendChild(modal);
 }
 
+// ========== EDICIÓN DE PEDIDOS ==========
+
+// Variable temporal para los items que se están editando
+let editingOrderItems = [];
+let editingOrderId = null;
+
+// Mostrar modal de edición del pedido
+async function showEditOrderModal(orderId) {
+  const order = await getOrderById(orderId);
+  if (!order) {
+    notifyError('Pedido no encontrado');
+    return;
+  }
+
+  editingOrderId = orderId;
+  editingOrderItems = JSON.parse(JSON.stringify(order.items || [])); // Deep clone
+
+  const deliveryCost = order.deliveryCost || 0;
+  const discount = order.discount || 0;
+  const tip = order.tip || 0;
+
+  const modal = document.createElement('div');
+  modal.id = 'editOrderModal';
+  modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-5 border-b border-gray-100 dark:border-zinc-800 shrink-0">
+        <div>
+          <h3 class="text-lg font-bold text-[#171212] dark:text-white font-display">Editar Pedido</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${order.id} • ${order.cliente?.nombre || 'Sin nombre'}</p>
+        </div>
+        <button onclick="closeEditOrderModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Content (scrollable) -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-5">
+        <!-- Items actuales -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-[#171212] dark:text-white font-display uppercase tracking-wider">Productos del Pedido</h4>
+            <button onclick="showAddProductToPedido()" class="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors">
+              <span class="material-symbols-outlined text-sm">add_circle</span>
+              Agregar Producto
+            </button>
+          </div>
+          <div id="editOrderItemsList" class="space-y-2">
+            <!-- Se genera dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Selector de producto (oculto por defecto) -->
+        <div id="addProductSection" class="hidden">
+          <div class="border border-primary/20 rounded-xl p-4 bg-primary/5 dark:bg-primary/10 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold text-primary font-display">Agregar Producto</h4>
+              <button onclick="hideAddProductToPedido()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            <input type="text" id="editOrderProductSearch" placeholder="Buscar producto..." 
+              oninput="filterEditOrderProducts(this.value)"
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-[#171212] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <div id="editOrderProductsList" class="max-h-48 overflow-y-auto space-y-1">
+              <!-- Productos disponibles -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div>
+          <h4 class="text-sm font-bold text-[#171212] dark:text-white font-display uppercase tracking-wider mb-2">Observaciones</h4>
+          <textarea id="editOrderObservations" rows="2" placeholder="Observaciones del pedido..."
+            class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-[#171212] dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none">${order.observations || ''}</textarea>
+        </div>
+
+        <!-- Resumen de totales -->
+        <div class="bg-gray-50 dark:bg-zinc-800/50 rounded-xl p-4 space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
+            <span id="editOrderSubtotal" class="font-semibold text-[#171212] dark:text-white">$0</span>
+          </div>
+          ${deliveryCost > 0 ? `
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 dark:text-gray-400">Despacho</span>
+            <span class="font-semibold text-[#171212] dark:text-white">$${Math.round(deliveryCost).toLocaleString()}</span>
+          </div>` : ''}
+          ${discount > 0 ? `
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 dark:text-gray-400">Descuento</span>
+            <span class="font-semibold text-green-600">-$${Math.round(discount).toLocaleString()}</span>
+          </div>` : ''}
+          ${tip > 0 ? `
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500 dark:text-gray-400">Propina</span>
+            <span class="font-semibold text-[#171212] dark:text-white">$${Math.round(tip).toLocaleString()}</span>
+          </div>` : ''}
+          <div class="flex justify-between pt-2 border-t border-gray-200 dark:border-zinc-700">
+            <span class="font-bold text-[#171212] dark:text-white">Total</span>
+            <span id="editOrderTotal" class="font-black text-primary text-lg">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer con botones -->
+      <div class="p-5 border-t border-gray-100 dark:border-zinc-800 shrink-0 flex gap-3">
+        <button onclick="closeEditOrderModal()" class="flex-1 h-11 rounded-xl bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-[#171212] dark:text-white text-sm font-bold font-display transition-colors">
+          Cancelar
+        </button>
+        <button onclick="saveEditedOrder()" class="flex-1 h-11 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-bold font-display transition-colors shadow-sm shadow-primary/20 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-sm">save</span>
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Renderizar items y cargar productos
+  renderEditOrderItems();
+  loadProductsForEdit();
+}
+
+// Renderizar items en el modal de edición
+function renderEditOrderItems() {
+  const container = document.getElementById('editOrderItemsList');
+  if (!container) return;
+
+  if (editingOrderItems.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-6 text-gray-400 dark:text-gray-500">
+        <span class="material-symbols-outlined text-3xl mb-2">shopping_cart</span>
+        <p class="text-sm">No hay productos en el pedido</p>
+      </div>
+    `;
+    recalcEditOrderTotals();
+    return;
+  }
+
+  let html = '';
+  editingOrderItems.forEach((item, index) => {
+    html += `
+      <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-gray-100 dark:border-zinc-800">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-[#171212] dark:text-white truncate">${item.name}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">$${Math.round(item.price || 0).toLocaleString()} c/u</p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="editOrderItemQty(${index}, -1)" class="w-8 h-8 rounded-lg bg-gray-200 dark:bg-zinc-700 flex items-center justify-center text-[#171212] dark:text-white hover:bg-gray-300 dark:hover:bg-zinc-600 transition-colors active:scale-95">
+            <span class="material-symbols-outlined text-sm">remove</span>
+          </button>
+          <span class="w-8 text-center text-sm font-bold text-[#171212] dark:text-white">${item.quantity || 1}</span>
+          <button onclick="editOrderItemQty(${index}, 1)" class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95">
+            <span class="material-symbols-outlined text-sm">add</span>
+          </button>
+        </div>
+        <button onclick="removeEditOrderItem(${index})" class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors active:scale-95" title="Eliminar">
+          <span class="material-symbols-outlined text-sm">delete</span>
+        </button>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  recalcEditOrderTotals();
+}
+
+// Cambiar cantidad de un item
+async function editOrderItemQty(index, change) {
+  if (!editingOrderItems[index]) return;
+
+  const newQty = (editingOrderItems[index].quantity || 1) + change;
+  if (newQty < 1) {
+    // Si llega a 0, preguntar si eliminar
+    const confirmed = await showConfirm(`¿Eliminar "${editingOrderItems[index].name}" del pedido?`, {
+      title: 'Quitar Producto',
+      confirmText: 'Eliminar',
+      type: 'warning'
+    });
+    if (confirmed) {
+      editingOrderItems.splice(index, 1);
+    }
+  } else {
+    editingOrderItems[index].quantity = newQty;
+    editingOrderItems[index].subtotal = (editingOrderItems[index].price || 0) * newQty;
+  }
+
+  renderEditOrderItems();
+}
+
+// Eliminar item del pedido
+async function removeEditOrderItem(index) {
+  if (!editingOrderItems[index]) return;
+
+  const confirmed = await showConfirm(`¿Eliminar "${editingOrderItems[index].name}" del pedido?`, {
+    title: 'Quitar Producto',
+    confirmText: 'Eliminar',
+    type: 'warning'
+  });
+  if (confirmed) {
+    editingOrderItems.splice(index, 1);
+    renderEditOrderItems();
+  }
+}
+
+// Recalcular totales en el modal de edición
+function recalcEditOrderTotals() {
+  let subtotal = 0;
+  editingOrderItems.forEach(item => {
+    subtotal += (item.price || 0) * (item.quantity || 1);
+  });
+
+  // Obtener datos del pedido original para delivery/descuento/propina
+  const modal = document.getElementById('editOrderModal');
+  // Leer los valores desde el HTML renderizado
+  const deliveryCostEl = modal?.querySelector('[data-delivery-cost]');
+  
+  // Usar datos guardados del pedido actual (se parsean del DOM)
+  const subtotalEl = document.getElementById('editOrderSubtotal');
+  const totalEl = document.getElementById('editOrderTotal');
+
+  if (subtotalEl) subtotalEl.textContent = `$${Math.round(subtotal).toLocaleString()}`;
+
+  // Recalcular total: obtener delivery, descuento y propina del DOM
+  // Estos se muestran estáticos en el modal
+  getOrderById(editingOrderId).then(order => {
+    if (!order) return;
+    const deliveryCost = order.deliveryCost || 0;
+    const discount = order.discount || 0;
+    const tip = order.tip || 0;
+    const total = subtotal + deliveryCost - discount + tip;
+    if (totalEl) totalEl.textContent = `$${Math.round(total).toLocaleString()}`;
+  });
+}
+
+// Mostrar sección de agregar producto
+function showAddProductToPedido() {
+  const section = document.getElementById('addProductSection');
+  if (section) {
+    section.classList.remove('hidden');
+    const searchInput = document.getElementById('editOrderProductSearch');
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.focus();
+    }
+    filterEditOrderProducts('');
+  }
+}
+
+// Ocultar sección de agregar producto
+function hideAddProductToPedido() {
+  const section = document.getElementById('addProductSection');
+  if (section) section.classList.add('hidden');
+}
+
+// Variable para almacenar productos cargados para edición
+let editOrderAvailableProducts = [];
+
+// Cargar productos desde Firebase para el selector
+function loadProductsForEdit() {
+  loadProductsFromFirebase((products) => {
+    editOrderAvailableProducts = products.filter(p => {
+      const category = (p.category || '').toLowerCase();
+      return category !== 'salsas' && category !== 'salsa';
+    });
+    filterEditOrderProducts('');
+  });
+}
+
+// Filtrar productos en el buscador
+function filterEditOrderProducts(searchTerm) {
+  const container = document.getElementById('editOrderProductsList');
+  if (!container) return;
+
+  const term = (searchTerm || '').toLowerCase().trim();
+  let filtered = editOrderAvailableProducts;
+
+  if (term) {
+    filtered = filtered.filter(p =>
+      (p.name || '').toLowerCase().includes(term) ||
+      (p.category || '').toLowerCase().includes(term)
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p class="text-xs text-gray-400 text-center py-3">No se encontraron productos</p>';
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(product => {
+    const price = product.price || 0;
+    html += `
+      <button onclick="addProductToEditOrder('${(product.name || '').replace(/'/g, "\\'")}', ${price})" 
+        class="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-white dark:hover:bg-zinc-800 transition-colors text-left group">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#171212] dark:text-white truncate">${product.name}</p>
+          <p class="text-[10px] text-gray-400 dark:text-gray-500">${product.category || 'Sin categoría'}</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-xs font-bold text-primary">$${Math.round(price).toLocaleString()}</span>
+          <span class="material-symbols-outlined text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">add_circle</span>
+        </div>
+      </button>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// Agregar producto al pedido en edición
+function addProductToEditOrder(productName, price) {
+  // Verificar si el producto ya está en el pedido
+  const existingIndex = editingOrderItems.findIndex(item => item.name === productName);
+
+  if (existingIndex >= 0) {
+    // Incrementar cantidad
+    editingOrderItems[existingIndex].quantity = (editingOrderItems[existingIndex].quantity || 1) + 1;
+    editingOrderItems[existingIndex].subtotal = (editingOrderItems[existingIndex].price || 0) * editingOrderItems[existingIndex].quantity;
+  } else {
+    // Agregar nuevo item
+    editingOrderItems.push({
+      name: productName,
+      price: price,
+      quantity: 1,
+      subtotal: price
+    });
+  }
+
+  renderEditOrderItems();
+  hideAddProductToPedido();
+}
+
+// Guardar cambios del pedido editado
+async function saveEditedOrder() {
+  if (!editingOrderId) return;
+
+  if (editingOrderItems.length === 0) {
+    notifyWarning('El pedido debe tener al menos un producto');
+    return;
+  }
+
+  const observations = document.getElementById('editOrderObservations')?.value || '';
+
+  // Mostrar loading en botón
+  const saveBtn = document.querySelector('#editOrderModal button[onclick="saveEditedOrder()"]');
+  const originalText = saveBtn ? saveBtn.innerHTML : '';
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Guardando...';
+  }
+
+  try {
+    await updateOrderItems(editingOrderId, editingOrderItems, observations);
+    closeEditOrderModal();
+    // Recargar la lista de pedidos
+    loadAllOrders();
+    notifySuccess('Pedido actualizado exitosamente');
+  } catch (error) {
+    console.error('Error al guardar pedido:', error);
+    notifyError('Error al guardar los cambios: ' + error.message);
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalText;
+    }
+  }
+}
+
+// Cerrar modal de edición
+function closeEditOrderModal() {
+  const modal = document.getElementById('editOrderModal');
+  if (modal) modal.remove();
+  editingOrderId = null;
+  editingOrderItems = [];
+}
+
 // Validar desde modal
 async function validateOrderFromModal(orderId) {
   try {
     await validateOrder(orderId);
-    alert('Pedido validado exitosamente');
+    notifySuccess('Pedido validado exitosamente');
   } catch (error) {
     console.error('Error al validar pedido:', error);
-    alert('Error al validar el pedido');
+    notifyError('Error al validar el pedido');
   }
+}
+
+// Cancelar pedido con confirmación (usado desde modal de gestión de estado)
+async function cancelOrderWithConfirm(orderId, modalElement) {
+  const confirmed = await showConfirm('¿Estás seguro de cancelar este pedido?', {
+    title: 'Cancelar Pedido',
+    confirmText: 'Sí, cancelar',
+    type: 'danger',
+    icon: 'cancel'
+  });
+  if (confirmed) {
+    await updateOrderStatusFromList(orderId, 'cancelado', true);
+    if (modalElement) modalElement.remove();
+  }
+}
+
+// Eliminar pedido desde el modal de detalles
+async function deleteOrderFromDetails(orderId, modalElement) {
+  if (modalElement) modalElement.remove();
+  await deleteOrderFromList(orderId);
 }
 
 // Obtener tiempo transcurrido
@@ -689,7 +933,6 @@ function showAdminTab(tab) {
   // Ocultar todos los contenidos
   document.getElementById('adminTabInventoryContent')?.classList.add('hidden');
   document.getElementById('adminTabOrdersContent')?.classList.add('hidden');
-  document.getElementById('adminTabDeliveryContent')?.classList.add('hidden');
   document.getElementById('adminTabSalesContent')?.classList.add('hidden');
   
   // Desactivar todos los botones
@@ -697,8 +940,6 @@ function showAdminTab(tab) {
   document.getElementById('adminTabInventory')?.classList.add('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
   document.getElementById('adminTabOrders')?.classList.remove('bg-primary', 'text-white');
   document.getElementById('adminTabOrders')?.classList.add('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
-  document.getElementById('adminTabDelivery')?.classList.remove('bg-primary', 'text-white');
-  document.getElementById('adminTabDelivery')?.classList.add('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
   document.getElementById('adminTabSales')?.classList.remove('bg-primary', 'text-white');
   document.getElementById('adminTabSales')?.classList.add('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
   
@@ -719,17 +960,6 @@ function showAdminTab(tab) {
     if (!ordersListener) {
       initAdminOrders();
     }
-    // Cargar filtros de repartidores
-    loadDeliveryPersonFilters();
-  } else if (tab === 'delivery') {
-    document.getElementById('adminTabDeliveryContent')?.classList.remove('hidden');
-    document.getElementById('adminTabDelivery')?.classList.remove('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
-    document.getElementById('adminTabDelivery')?.classList.add('bg-primary', 'text-white');
-    if (fab) fab.style.display = 'none';
-    // Inicializar repartidores si no se ha hecho
-    if (typeof initAdminDelivery === 'function') {
-      initAdminDelivery();
-    }
   } else if (tab === 'sales') {
     document.getElementById('adminTabSalesContent')?.classList.remove('hidden');
     document.getElementById('adminTabSales')?.classList.remove('bg-gray-200', 'dark:bg-zinc-800', 'text-gray-700', 'dark:text-gray-300');
@@ -742,57 +972,11 @@ function showAdminTab(tab) {
   }
 }
 
-// Cargar filtros de repartidores en la sección de pedidos
-async function loadDeliveryPersonFilters() {
-  const container = document.getElementById('deliveryPersonFilters');
-  const containerParent = document.getElementById('deliveryPersonFiltersContainer');
-  if (!container) return;
-  
-  try {
-    const persons = await getAllDeliveryPersons();
-    
-    if (persons.length === 0) {
-      containerParent?.classList.add('hidden');
-      return;
-    }
-    
-    containerParent?.classList.remove('hidden');
-    
-    let html = `
-      <button onclick="filterOrdersByDeliveryPerson(null)" class="delivery-person-filter-chip flex h-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-4 text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:border-primary">
-        Todos
-      </button>
-    `;
-    
-    persons.forEach(person => {
-      html += `
-        <button onclick="filterOrdersByDeliveryPerson('${person.id}')" data-delivery-person="${person.id}" class="delivery-person-filter-chip flex h-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-4 text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:border-primary">
-          🚴 ${person.name} ${person.activeOrders > 0 ? `(${person.activeOrders})` : ''}
-        </button>
-      `;
-    });
-    
-    container.innerHTML = html;
-    
-    // Aplicar estilo al filtro activo si existe
-    if (window.currentDeliveryPersonFilter) {
-      const activeChip = container.querySelector(`[data-delivery-person="${window.currentDeliveryPersonFilter}"]`);
-      if (activeChip) {
-        activeChip.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-        activeChip.classList.add('bg-primary', 'text-white');
-      }
-    }
-  } catch (error) {
-    console.error('Error al cargar filtros de repartidores:', error);
-    containerParent?.classList.add('hidden');
-  }
-}
-
 // Función para imprimir pedido
 async function printOrder(orderId) {
   const order = await getOrderById(orderId);
   if (!order) {
-    alert('Pedido no encontrado');
+    notifyError('Pedido no encontrado');
     return;
   }
   
@@ -961,9 +1145,6 @@ async function printOrder(orderId) {
           <p><strong>Estado:</strong> 
             <span class="status-badge status-${order.status}">${statusNames[order.status] || order.status}</span>
           </p>
-          ${order.deliveryPerson ? `
-            <p><strong>Repartidor:</strong> ${order.deliveryPerson.name}</p>
-          ` : ''}
         </div>
         
         <div class="info-section">
@@ -1063,12 +1244,20 @@ window.initAdminOrders = initAdminOrders;
 window.showAdminTab = showAdminTab;
 window.filterOrders = filterOrders;
 window.filterOrdersBySearch = filterOrdersBySearch;
-window.filterOrdersByDeliveryPerson = filterOrdersByDeliveryPerson;
-window.loadDeliveryPersonFilters = loadDeliveryPersonFilters;
 window.validateOrderFromList = validateOrderFromList;
 window.updateOrderStatusFromList = updateOrderStatusFromList;
 window.viewOrderDetails = viewOrderDetails;
 window.manageOrderStatus = manageOrderStatus;
 window.deleteOrderFromList = deleteOrderFromList;
-window.handleEnCaminoWithDelivery = handleEnCaminoWithDelivery;
+window.showEditOrderModal = showEditOrderModal;
+window.editOrderItemQty = editOrderItemQty;
+window.removeEditOrderItem = removeEditOrderItem;
+window.showAddProductToPedido = showAddProductToPedido;
+window.hideAddProductToPedido = hideAddProductToPedido;
+window.filterEditOrderProducts = filterEditOrderProducts;
+window.addProductToEditOrder = addProductToEditOrder;
+window.saveEditedOrder = saveEditedOrder;
+window.closeEditOrderModal = closeEditOrderModal;
+window.cancelOrderWithConfirm = cancelOrderWithConfirm;
+window.deleteOrderFromDetails = deleteOrderFromDetails;
 window.printOrder = printOrder;

@@ -132,17 +132,6 @@ async function updateOrderStatus(orderId, newStatus, note = '') {
     statusUpdate.estimatedTime = Date.now() + (15 * 60 * 1000); // 15 minutos más
   }
 
-  // Si se marca como entregado y tiene repartidor, liberar repartidor
-  if (newStatus === ORDER_STATUS.DELIVERED && order.deliveryPerson) {
-    if (typeof unassignDeliveryPerson === 'function') {
-      try {
-        await unassignDeliveryPerson(orderId);
-      } catch (error) {
-        console.error('Error al liberar repartidor:', error);
-      }
-    }
-  }
-
   await window.firebaseSet(orderRef, {
     ...order,
     ...statusUpdate
@@ -229,7 +218,11 @@ function resetRateLimit() {
   const storageKey = 'orderRateLimit';
   localStorage.removeItem(storageKey);
   console.log('✅ Rate limiting reseteado. Ahora puedes crear pedidos nuevamente.');
-  alert('Rate limiting reseteado. Puedes crear pedidos nuevamente.');
+  if (typeof notifySuccess === 'function') {
+    notifySuccess('Rate limiting reseteado. Puedes crear pedidos nuevamente.');
+  } else {
+    console.log('Rate limiting reseteado.');
+  }
 }
 
 // Hacer disponible globalmente para uso desde consola
@@ -433,6 +426,56 @@ async function validateOrderPrices(orderData, cartItems) {
   }
 }
 
+// Actualizar items de un pedido existente (para edición desde admin)
+async function updateOrderItems(orderId, newItems, newObservations) {
+  if (!window.firebaseDB) {
+    throw new Error('Firebase no está inicializado');
+  }
+
+  const orderRef = window.firebaseRef(window.firebaseDB, `orders/${orderId}`);
+  const orderSnapshot = await window.firebaseGet(orderRef);
+  const order = orderSnapshot.val();
+
+  if (!order) {
+    throw new Error('Pedido no encontrado');
+  }
+
+  // Recalcular subtotal basado en los nuevos items
+  let newSubtotal = 0;
+  newItems.forEach(item => {
+    item.subtotal = (item.price || 0) * (item.quantity || 1);
+    newSubtotal += item.subtotal;
+  });
+
+  // Recalcular total (subtotal + delivery - descuento + propina)
+  const deliveryCost = order.deliveryCost || 0;
+  const discount = order.discount || 0;
+  const tip = order.tip || 0;
+  const newTotal = newSubtotal + deliveryCost - discount + tip;
+
+  // Agregar nota al historial
+  const historyEntry = {
+    status: order.status,
+    timestamp: Date.now(),
+    note: 'Pedido editado por administrador'
+  };
+
+  await window.firebaseSet(orderRef, {
+    ...order,
+    items: newItems,
+    observations: newObservations !== undefined ? newObservations : order.observations,
+    subtotal: newSubtotal,
+    total: newTotal,
+    lastEditedAt: Date.now(),
+    statusHistory: [
+      ...(order.statusHistory || []),
+      historyEntry
+    ]
+  });
+
+  return { subtotal: newSubtotal, total: newTotal };
+}
+
 // Eliminar pedido (solo para admin)
 async function deleteOrder(orderId) {
   if (!window.firebaseDB) {
@@ -458,6 +501,7 @@ window.validateOrderPattern = validateOrderPattern;
 window.validateOrderQuantities = validateOrderQuantities;
 window.validateOrderPrices = validateOrderPrices;
 window.generateOrderId = generateOrderId;
+window.updateOrderItems = updateOrderItems;
 window.deleteOrder = deleteOrder;
 window.resetRateLimit = resetRateLimit;
 window.ORDER_STATUS = ORDER_STATUS;

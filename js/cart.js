@@ -65,7 +65,7 @@ function addToCartDirect(button, event) {
     };
     
     if (!isInStock) {
-      alert('Este producto está actualmente agotado');
+      notifyWarning('Este producto está actualmente agotado');
       cleanup();
       return;
     }
@@ -745,7 +745,7 @@ function addProductToCartFromDetail() {
   const productName = sessionStorage.getItem('selectedProductName') || selectedProductName;
   
   if (!productName) {
-    alert('Error: No hay producto seleccionado');
+    notifyError('Error: No hay producto seleccionado');
     return;
   }
   
@@ -753,14 +753,14 @@ function addProductToCartFromDetail() {
     const product = products.find(p => p.name === productName);
     
     if (!product) {
-      alert('Error: Producto no encontrado');
+      notifyError('Error: Producto no encontrado');
       return;
     }
     
     // Verificar stock antes de agregar
     getItemStockStatus(productName, (isInStock) => {
       if (!isInStock) {
-        alert('Este producto está actualmente agotado');
+        notifyWarning('Este producto está actualmente agotado');
         return;
       }
       

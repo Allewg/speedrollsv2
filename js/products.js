@@ -40,7 +40,7 @@ function toggleSauce(element, sauceName, price) {
   } else {
     // Verificar límite de 2 salsas
     if (selectedCount >= 2) {
-      alert('Solo puedes seleccionar hasta 2 salsas');
+      notifyWarning('Solo puedes seleccionar hasta 2 salsas');
       return;
     }
     
